@@ -248,7 +248,7 @@ async function seed() {
         trapWarning: day.trapWarning,
         confidence: day.confidence,
         modelVersion: 'gpt-4.1-mini',
-        generatedFrom: JSON.stringify({ mood: day.mood, focus: day.focus }),
+        generatedFrom: { mood: day.mood, focus: day.focus },
       },
     });
 

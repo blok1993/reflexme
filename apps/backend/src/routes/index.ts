@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import type { DailyCheckin, Prediction, Review } from '@prisma/client';
+import type { DailyCheckin, Prediction, Prisma, Review } from '@prisma/client';
 import type { FocusArea, PreferredTone } from '@predictor/contracts';
 import { prisma } from '../lib/prisma.js';
 import { fail, ok } from '../lib/http.js';
@@ -348,14 +348,14 @@ router.post('/api/v1/predictions/generate', async (req, res) => {
       trapWarning: llm.trapWarning,
       confidence: llm.confidence,
       modelVersion: llm.modelVersion,
-      generatedFrom: JSON.stringify({
+      generatedFrom: {
         mood: checkin.mood,
         focus: checkin.focus,
         contextLength: checkin.contextText?.length ?? 0,
         preferredTone: user.preferredTone,
-      }),
+      },
       // Store raw response only outside production (debugging aid)
-      rawResponse: process.env.NODE_ENV !== 'production' ? JSON.stringify(llm) : undefined,
+      rawResponse: process.env.NODE_ENV !== 'production' ? (llm as Prisma.InputJsonValue) : undefined,
     },
   });
 

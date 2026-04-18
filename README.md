@@ -174,8 +174,7 @@ npm run test           # 72 E2E теста (нужен запущенный фр
 ## Деплой в production
 
 1. Сменить `provider = "sqlite"` на `provider = "postgresql"` в `schema.prisma`
-2. Вернуть `Json?` типы для полей `generatedFrom` и `rawResponse` в схеме
-3. Подключить managed PostgreSQL (Supabase / Neon free tier)
-4. Frontend → Vercel или Netlify  
-5. Backend → Railway или Render  
-6. Задать переменные окружения: `DATABASE_URL`, `OPENAI_API_KEY`, `FRONTEND_URL`
+2. Подключить managed PostgreSQL (Supabase / Neon free tier)
+3. Frontend → Vercel или Netlify  
+4. Backend → Railway или Render  
+5. Задать переменные окружения: `DATABASE_URL`, `OPENAI_API_KEY`, `FRONTEND_URL`

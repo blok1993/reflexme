@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   // Local dev: SQLite. Production: change to "postgresql" and update DATABASE_URL.
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -65,8 +65,8 @@ model Prediction {
   trapWarning   String
   confidence    String
   modelVersion  String
-  generatedFrom String?      // JSON string — stored as text in SQLite, JSON in PostgreSQL
-  rawResponse   String?
+  generatedFrom Json?
+  rawResponse   Json?
   createdAt     DateTime     @default(now())
   user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   checkin       DailyCheckin @relation(fields: [checkinId], references: [id], onDelete: Cascade)
