@@ -208,7 +208,7 @@ async function seed() {
 
   if (checkinsToDelete.length > 0) {
     await prisma.dailyCheckin.deleteMany({
-      where: { id: { in: checkinsToDelete.map((c) => c.id) } },
+      where: { id: { in: checkinsToDelete.map((c: { id: string }) => c.id) } },
     });
     console.log(`Deleted ${checkinsToDelete.length} old records`);
   }

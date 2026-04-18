@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import type { FocusArea, PreferredTone } from '@predictor/contracts';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma.js';
 import { fail, ok } from '../lib/http.js';
 import { logger } from '../lib/logger.js';
@@ -14,6 +16,22 @@ import { analyzeVocabulary } from '../services/vocabulary.service.js';
 import { canSubmitReviewForPredictionDate } from '../lib/review-window.js';
 
 const router = Router();
+
+type ReviewWithPredictionCheckin = Prisma.ReviewGetPayload<{
+  include: { prediction: { include: { checkin: true } } };
+}>;
+
+type CheckinWithPredictionReview = Prisma.DailyCheckinGetPayload<{
+  include: { prediction: { include: { review: true } } };
+}>;
+
+type ReviewDateAccuracy = Prisma.ReviewGetPayload<{
+  select: { date: true; accuracyScore: true };
+}>;
+
+type CheckinContextOnly = Prisma.DailyCheckinGetPayload<{
+  select: { contextText: true };
+}>;
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -52,7 +70,7 @@ async function maybeUpdateProfile(userId: string): Promise<void> {
 
   const summary = await generateProfileSummaryLLM({
     totalReviews,
-    reviews: reviews.map((r) => ({
+    reviews: reviews.map((r: ReviewWithPredictionCheckin) => ({
       date: r.date,
       mood: r.prediction?.checkin?.mood ?? 3,
       focus: r.prediction?.checkin?.focus ?? 'work',
@@ -99,7 +117,7 @@ async function maybeUpdatePatternCards(userId: string): Promise<void> {
 
   const cards = await generatePatternCardsLLM({
     totalReviews,
-    reviews: reviews.map((r) => ({
+    reviews: reviews.map((r: ReviewWithPredictionCheckin) => ({
       date: r.date,
       mood: r.prediction?.checkin?.mood ?? 3,
       focus: r.prediction?.checkin?.focus ?? 'work',
@@ -299,16 +317,16 @@ router.post('/api/v1/predictions/generate', async (req, res) => {
   let llm;
   try {
     llm = await generatePredictionLLM({
-      preferredTone: user.preferredTone,
+      preferredTone: user.preferredTone as PreferredTone,
       gender: user.gender,
       birthDate: user.birthDate,
       profileSummary: user.profileSummary ?? null,
       today: {
         mood: checkin.mood as 1 | 2 | 3 | 4 | 5,
-        focus: checkin.focus,
+        focus: checkin.focus as FocusArea,
         contextText: checkin.contextText ?? '',
       },
-      recentHistory: recentReviews.map((r) => ({
+      recentHistory: recentReviews.map((r: ReviewWithPredictionCheckin) => ({
         date: r.date,
         mood: r.prediction?.checkin?.mood ?? 3,
         focus: r.prediction?.checkin?.focus ?? 'work',
@@ -451,7 +469,7 @@ router.get('/api/v1/history', async (req, res) => {
   });
 
   ok(res, {
-    items: checkins.map((c) => ({
+    items: checkins.map((c: CheckinWithPredictionReview) => ({
       date: c.date,
       dayType: c.prediction?.dayType ?? null,
       mood: c.mood,
@@ -471,7 +489,7 @@ router.get('/api/v1/insights/weekly', async (req, res) => {
   if (!startDate || !endDate) return fail(res, 'VALIDATION_ERROR', 'startDate and endDate are required');
 
   const user = await getOrCreateUser(req.deviceId);
-  const reviews = await prisma.review.findMany({
+  const reviews: ReviewWithPredictionCheckin[] = await prisma.review.findMany({
     where: { userId: user.id, date: { gte: startDate, lte: endDate } },
     include: { prediction: { include: { checkin: true } } },
     orderBy: { date: 'desc' },
@@ -479,7 +497,7 @@ router.get('/api/v1/insights/weekly', async (req, res) => {
 
   const totalDays = reviews.length;
   const averageAccuracy = totalDays
-    ? reviews.reduce((sum, r) => sum + (r.accuracyScore ?? 0), 0) / totalDays
+    ? reviews.reduce((sum: number, r: ReviewWithPredictionCheckin) => sum + (r.accuracyScore ?? 0), 0) / totalDays
     : null;
 
   const dayTypeCount = new Map<string, number>();
@@ -490,10 +508,11 @@ router.get('/api/v1/insights/weekly', async (req, res) => {
   const mostFrequentDayType = [...dayTypeCount.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
 
   const sectionSums = { likelyEvent: 0, strengthPoint: 0, trapWarning: 0 };
-  reviews.forEach((r) => {
-    sectionSums.likelyEvent += scoreValue(r.likelyEventScore);
-    sectionSums.strengthPoint += scoreValue(r.strengthPointScore);
-    sectionSums.trapWarning += scoreValue(r.trapWarningScore);
+  const score = (s: string) => scoreValue(s as 'yes' | 'partial' | 'no');
+  reviews.forEach((r: ReviewWithPredictionCheckin) => {
+    sectionSums.likelyEvent += score(r.likelyEventScore);
+    sectionSums.strengthPoint += score(r.strengthPointScore);
+    sectionSums.trapWarning += score(r.trapWarningScore);
   });
   const mostAccurateSection = totalDays
     ? (Object.entries(sectionSums).sort((a, b) => b[1] - a[1])[0][0] as 'likelyEvent' | 'strengthPoint' | 'trapWarning')
@@ -528,7 +547,7 @@ router.get('/api/v1/insights/weekly', async (req, res) => {
       totalDays,
       averageAccuracy,
       mostFrequentDayType,
-      reviews: reviews.map((r) => ({
+      reviews: reviews.map((r: ReviewWithPredictionCheckin) => ({
         date: r.date,
         dayType: r.prediction.dayType,
         likelyEventScore: r.likelyEventScore,
@@ -550,7 +569,9 @@ router.get('/api/v1/insights/weekly', async (req, res) => {
           generatedAt: Date.now(),
         } satisfies WeeklyCache),
       },
-    }).catch((err) => logger.warn({ err: (err as Error).message }, 'Failed to cache weekly patterns'));
+    }).catch((err: unknown) =>
+      logger.warn({ err: err instanceof Error ? err.message : String(err) }, 'Failed to cache weekly patterns'),
+    );
   } else {
     patterns = cached.patterns;
     logger.debug({ week: startDate }, 'Weekly patterns served from cache');
@@ -560,7 +581,7 @@ router.get('/api/v1/insights/weekly', async (req, res) => {
     range: { startDate, endDate },
     summary: { totalDays, averageAccuracy, mostFrequentDayType, mostAccurateSection },
     patterns,
-    days: reviews.map((r) => ({
+    days: reviews.map((r: ReviewWithPredictionCheckin) => ({
       date: r.date,
       dayType: r.prediction.dayType,
       accuracyScore: r.accuracyScore,
@@ -598,7 +619,7 @@ router.post('/api/v1/profile/refresh', async (req, res) => {
 
   const summary = await generateProfileSummaryLLM({
     totalReviews,
-    reviews: reviews.map((r) => ({
+    reviews: reviews.map((r: ReviewWithPredictionCheckin) => ({
       date: r.date,
       mood: r.prediction?.checkin?.mood ?? 3,
       focus: r.prediction?.checkin?.focus ?? 'work',
@@ -635,9 +656,9 @@ router.get('/api/v1/insights/accuracy-curve', async (req, res) => {
 
   // Build cumulative running average: each point = mean of all days up to that date.
   // This smooths out day-to-day variance and shows whether accuracy is improving overall.
-  const withScore = reviews.filter((r) => r.accuracyScore !== null);
+  const withScore = reviews.filter((r: ReviewDateAccuracy) => r.accuracyScore !== null);
   let runningSum = 0;
-  const dataPoints = withScore.map((r, i) => {
+  const dataPoints = withScore.map((r: ReviewDateAccuracy, i: number) => {
     runningSum += r.accuracyScore as number;
     return { date: r.date, accuracy: runningSum / (i + 1) };
   });
@@ -673,7 +694,7 @@ router.get('/api/v1/insights/vocabulary', async (req, res) => {
     take: 90, // last 3 months max
   });
 
-  const texts = checkins.map((c) => c.contextText);
+  const texts = checkins.map((c: CheckinContextOnly) => c.contextText);
   const words = analyzeVocabulary(texts);
   const analyzed = texts.filter(Boolean).length;
 
@@ -722,7 +743,7 @@ router.post('/api/v1/insights/patterns/refresh', async (req, res) => {
 
   const cards = await generatePatternCardsLLM({
     totalReviews,
-    reviews: reviews.map((r) => ({
+    reviews: reviews.map((r: ReviewWithPredictionCheckin) => ({
       date: r.date,
       mood: r.prediction?.checkin?.mood ?? 3,
       focus: r.prediction?.checkin?.focus ?? 'work',

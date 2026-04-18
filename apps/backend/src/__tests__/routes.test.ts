@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import type { Prisma } from '@prisma/client';
 import request from 'supertest';
 import app from '../app.js';
 
@@ -232,11 +233,10 @@ describe('POST /api/v1/reviews — accuracy calculation', () => {
 
   it('calculates accuracyScore = 1 when all yes', async () => {
     const { prisma } = await import('../lib/prisma.js');
-    vi.mocked(prisma.review.create).mockImplementation(async ({ data }) => ({
-      id: 'rev_1', ...data,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }) as never);
+    vi.mocked(prisma.review.create).mockImplementation(async (args: Prisma.ReviewCreateArgs) => {
+      const { data } = args;
+      return { id: 'rev_1', ...data, createdAt: new Date(), updatedAt: new Date() } as never;
+    });
 
     const res = await request(app)
       .post('/api/v1/reviews')
@@ -254,11 +254,10 @@ describe('POST /api/v1/reviews — accuracy calculation', () => {
 
   it('calculates accuracyScore = 0 when all no', async () => {
     const { prisma } = await import('../lib/prisma.js');
-    vi.mocked(prisma.review.create).mockImplementation(async ({ data }) => ({
-      id: 'rev_1', ...data,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }) as never);
+    vi.mocked(prisma.review.create).mockImplementation(async (args: Prisma.ReviewCreateArgs) => {
+      const { data } = args;
+      return { id: 'rev_1', ...data, createdAt: new Date(), updatedAt: new Date() } as never;
+    });
 
     const res = await request(app)
       .post('/api/v1/reviews')
@@ -276,11 +275,10 @@ describe('POST /api/v1/reviews — accuracy calculation', () => {
 
   it('calculates accuracyScore ≈ 0.5 for yes+partial+no', async () => {
     const { prisma } = await import('../lib/prisma.js');
-    vi.mocked(prisma.review.create).mockImplementation(async ({ data }) => ({
-      id: 'rev_1', ...data,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }) as never);
+    vi.mocked(prisma.review.create).mockImplementation(async (args: Prisma.ReviewCreateArgs) => {
+      const { data } = args;
+      return { id: 'rev_1', ...data, createdAt: new Date(), updatedAt: new Date() } as never;
+    });
 
     const res = await request(app)
       .post('/api/v1/reviews')
