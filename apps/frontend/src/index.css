@@ -1,0 +1,162 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design tokens ─────────────────────────────────────────────────── */
+:root {
+  --color-bg: #F7F4EF;
+  --color-bg-secondary: #F0EDE8;
+  --color-text: #1C1C1E;
+  --color-text-secondary: #6B6B70;
+  --color-text-tertiary: #AEAEB2;
+  --color-border: #E8E5E0;
+
+  /* Updated by JS based on selected mood */
+  --color-accent: #A09080;
+  --color-accent-light: rgba(160, 144, 128, 0.12);
+  --color-mood-bg: #F7F4EF;
+}
+
+/* ─── Mood themes ────────────────────────────────────────────────────── */
+[data-mood="1"] {
+  --color-accent: #7B9EBE;
+  --color-accent-light: rgba(123, 158, 190, 0.12);
+  --color-mood-bg: #EEF2F7;
+}
+[data-mood="2"] {
+  --color-accent: #9E7BBE;
+  --color-accent-light: rgba(158, 123, 190, 0.12);
+  --color-mood-bg: #F2EEF7;
+}
+[data-mood="3"] {
+  --color-accent: #A09080;
+  --color-accent-light: rgba(160, 144, 128, 0.12);
+  --color-mood-bg: #F7F4EF;
+}
+[data-mood="4"] {
+  --color-accent: #5DA888;
+  --color-accent-light: rgba(93, 168, 136, 0.12);
+  --color-mood-bg: #EFF7F3;
+}
+[data-mood="5"] {
+  --color-accent: #C09A50;
+  --color-accent-light: rgba(192, 154, 80, 0.12);
+  --color-mood-bg: #F7F3E8;
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-mood-bg);
+  color: var(--color-text);
+  min-height: 100dvh;
+  transition: background-color 0.6s ease;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+/* ─── App shell ──────────────────────────────────────────────────────── */
+.app-shell {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  position: relative;
+  background-color: var(--color-mood-bg);
+  transition: background-color 0.6s ease;
+}
+
+/* ─── Page wrapper ───────────────────────────────────────────────────── */
+.page {
+  padding: 24px 20px 100px;
+  min-height: 100dvh;
+}
+
+/* ─── Cards ──────────────────────────────────────────────────────────── */
+.card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  box-shadow: 0 2px 24px 0 rgba(0,0,0,0.06);
+  padding: 20px;
+}
+
+/* ─── Prediction cards ───────────────────────────────────────────────── */
+.prediction-card-likely {
+  border-left: 3px solid #5B6FD4;
+  background: #FFFFFF;
+}
+.prediction-card-strength {
+  border-left: 3px solid #3DAB7A;
+  background: #FFFFFF;
+}
+.prediction-card-trap {
+  border-left: 3px solid #D07848;
+  background: #FFFFFF;
+}
+
+/* ─── Bottom nav ─────────────────────────────────────────────────────── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  background: rgba(247, 244, 239, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--color-border);
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+  z-index: 100;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+
+/* ─── Loading phrases ────────────────────────────────────────────────── */
+@keyframes phrase-cycle {
+  0%, 100% { opacity: 0; transform: translateY(4px); }
+  15%, 85% { opacity: 1; transform: translateY(0); }
+}
+
+.phrase-animate {
+  animation: phrase-cycle 2.5s ease-in-out infinite;
+}
+
+/* ─── Tap feedback ───────────────────────────────────────────────────── */
+.tap-scale {
+  transition: transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.tap-scale:active {
+  transform: scale(0.97);
+}
+
+/* ─── Focus styles ───────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+textarea:focus, input:focus {
+  outline: none;
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 0 0 3px var(--color-accent-light);
+}
+
+/* ─── Transitions ────────────────────────────────────────────────────── */
+a { color: inherit; text-decoration: none; }
+button { -webkit-tap-highlight-color: transparent; cursor: pointer; }

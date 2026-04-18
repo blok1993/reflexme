@@ -1,0 +1,26 @@
+{
+  "name": "predictor-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w @predictor/backend\" \"npm run dev -w @predictor/frontend\"",
+    "build": "npm run build -ws",
+    "prisma:generate": "npm run prisma:generate -w @predictor/backend",
+    "prisma:push": "npm run prisma:push -w @predictor/backend",
+    "prisma:studio": "npm run prisma:studio -w @predictor/backend",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report",
+    "test:backend": "npm run test -w @predictor/backend",
+    "test:all": "npm run test:backend && npm run test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "concurrently": "^9.0.1"
+  }
+}

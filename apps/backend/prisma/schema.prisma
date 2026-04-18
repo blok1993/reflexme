@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // Local dev: SQLite. Production: change to "postgresql" and update DATABASE_URL.
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String         @id @default(cuid())
+  deviceId             String         @unique
+  name                 String?
+  gender               String?        // 'male' | 'female'
+  birthDate            String?        // YYYY-MM-DD
+  preferredTone        String         @default("neutral")
+  timezone             String         @default("UTC")
+  onboardingCompleted  Boolean        @default(false)
+  eveningReminderTime  String?
+  notificationsEnabled Boolean        @default(false)
+  // Accumulated psychological profile — generated from reviews, used in prediction prompts.
+  // Updated asynchronously every ~7 days once ≥5 reviews exist.
+  profileSummary       String?
+  profileUpdatedAt     DateTime?
+  // Structural pattern discoveries — generated after 15+ reviews, cached 10 days
+  patternCards          String?
+  patternCardsUpdatedAt DateTime?
+  // Cached weekly patterns — keyed by week start date to avoid re-calling LLM on every page open
+  weeklyPatternsCache   String?   // JSON: { week: string, patterns: string[], reviewCount: number }
+
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  dailyCheckins        DailyCheckin[]
+  predictions          Prediction[]
+  reviews              Review[]
+
+  @@index([deviceId])
+}
+
+model DailyCheckin {
+  id          String      @id @default(cuid())
+  userId      String
+  date        String
+  mood        Int
+  focus       String
+  contextText String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prediction  Prediction?
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+model Prediction {
+  id            String       @id @default(cuid())
+  userId        String
+  checkinId     String       @unique
+  date          String
+  dayType       String
+  likelyEvent   String
+  strengthPoint String
+  trapWarning   String
+  confidence    String
+  modelVersion  String
+  generatedFrom String?      // JSON string — stored as text in SQLite, JSON in PostgreSQL
+  rawResponse   String?
+  createdAt     DateTime     @default(now())
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkin       DailyCheckin @relation(fields: [checkinId], references: [id], onDelete: Cascade)
+  review        Review?
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+model Review {
+  id                 String     @id @default(cuid())
+  userId             String
+  predictionId       String     @unique
+  date               String
+  likelyEventScore   String
+  strengthPointScore String
+  trapWarningScore   String
+  comment            String?
+  accuracyScore      Float?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  user               User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prediction         Prediction @relation(fields: [predictionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
