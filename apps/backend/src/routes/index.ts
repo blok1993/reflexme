@@ -1,6 +1,6 @@
 import { Router } from 'express';
+import type { DailyCheckin, Prediction, Review } from '@prisma/client';
 import type { FocusArea, PreferredTone } from '@predictor/contracts';
-import type { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma.js';
 import { fail, ok } from '../lib/http.js';
 import { logger } from '../lib/logger.js';
@@ -17,21 +17,18 @@ import { canSubmitReviewForPredictionDate } from '../lib/review-window.js';
 
 const router = Router();
 
-type ReviewWithPredictionCheckin = Prisma.ReviewGetPayload<{
-  include: { prediction: { include: { checkin: true } } };
-}>;
+/** Составные типы без `Prisma.*GetPayload` — на CI иногда другой сгенерированный namespace. */
+type ReviewWithPredictionCheckin = Review & {
+  prediction: Prediction & { checkin: DailyCheckin };
+};
 
-type CheckinWithPredictionReview = Prisma.DailyCheckinGetPayload<{
-  include: { prediction: { include: { review: true } } };
-}>;
+type CheckinWithPredictionReview = DailyCheckin & {
+  prediction: (Prediction & { review: Review | null }) | null;
+};
 
-type ReviewDateAccuracy = Prisma.ReviewGetPayload<{
-  select: { date: true; accuracyScore: true };
-}>;
+type ReviewDateAccuracy = Pick<Review, 'date' | 'accuracyScore'>;
 
-type CheckinContextOnly = Prisma.DailyCheckinGetPayload<{
-  select: { contextText: true };
-}>;
+type CheckinContextOnly = Pick<DailyCheckin, 'contextText'>;
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
