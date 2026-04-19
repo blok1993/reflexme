@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import type { DailyCheckin, Prediction, Prisma, Review } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import type { DailyCheckin, Prediction, Review } from '@prisma/client';
 import type { FocusArea, PreferredTone } from '@predictor/contracts';
 import { prisma } from '../lib/prisma.js';
 import { fail, ok } from '../lib/http.js';
@@ -138,15 +139,30 @@ async function maybeUpdatePatternCards(userId: string): Promise<void> {
 
 /** Find or create a user identified by their device ID.
  *
- * Uses upsert to avoid a race condition where two simultaneous first-time requests
- * with the same deviceId both pass the findUnique check and then one fails with P2002.
+ * Prisma's upsert with `update: {}` silently falls back to SELECT + INSERT instead of
+ * the native `INSERT ... ON CONFLICT`, which still races under concurrent requests.
+ * Workaround: include at least one real field in `update` to force native upsert.
+ * Fallback: catch P2002 and return the already-existing record as a second safety net.
+ * See: https://github.com/prisma/prisma/issues/20229
  */
 async function getOrCreateUser(deviceId: string) {
-  return prisma.user.upsert({
-    where: { deviceId },
-    update: {},
-    create: { deviceId, timezone: 'UTC', preferredTone: 'neutral', onboardingCompleted: false },
-  });
+  try {
+    return await prisma.user.upsert({
+      where: { deviceId },
+      // Non-empty update forces Prisma to emit INSERT ... ON CONFLICT DO UPDATE
+      // instead of the racy SELECT + INSERT it uses when update is empty.
+      update: { updatedAt: new Date() },
+      create: { deviceId, timezone: 'UTC', preferredTone: 'neutral', onboardingCompleted: false },
+    });
+  } catch (e) {
+    // Defense-in-depth: if a concurrent request won the race despite the ON CONFLICT
+    // clause (e.g. a DB config edge case), just fetch the existing record.
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+      logger.warn({ deviceId }, 'getOrCreateUser: P2002 caught, returning existing user');
+      return prisma.user.findUniqueOrThrow({ where: { deviceId } });
+    }
+    throw e;
+  }
 }
 
 export function scoreValue(value: 'yes' | 'partial' | 'no'): number {
