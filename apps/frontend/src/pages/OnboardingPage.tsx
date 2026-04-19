@@ -175,7 +175,7 @@ function WelcomeStep() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="text-xl font-medium leading-snug mb-3"
+        className="text-xl font-medium leading-snug mb-3 whitespace-pre-line"
         style={{ color: 'var(--color-text)' }}
       >
         Утром — прогноз.{'\n'}Вечером — проверка.
@@ -184,7 +184,7 @@ function WelcomeStep() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="text-base"
+        className="text-base whitespace-pre-line"
         style={{ color: 'var(--color-text-secondary)' }}
       >
         Не гороскоп. Не магия.{'\n'}Что-то точнее.

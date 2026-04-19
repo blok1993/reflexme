@@ -2,6 +2,7 @@ import type { Page, Route } from '@playwright/test';
 import {
   NEW_USER,
   ONBOARDED_USER,
+  NAMED_USER,
   CHECKIN,
   PREDICTION,
   REVIEW,
@@ -43,10 +44,12 @@ export async function setupMocks(page: Page, config: MockConfig = {}) {
   } = config;
 
   const userFixture =
-    user === 'new' ? NEW_USER : ONBOARDED_USER;
+    user === 'new' ? NEW_USER : user === 'named' ? NAMED_USER : ONBOARDED_USER;
 
   // Mutable snapshot so after POST (e.g. onboarding) subsequent GET returns updated user.
-  let currentUser: typeof NEW_USER | typeof ONBOARDED_USER = { ...userFixture };
+  let currentUser: typeof NEW_USER | typeof ONBOARDED_USER | typeof NAMED_USER = {
+    ...userFixture,
+  };
 
   // GET /api/v1/users/me
   await page.route('**/api/v1/users/me', async (route: Route) => {

@@ -139,7 +139,10 @@ export function SettingsPage() {
           </section>
 
           <section className="card">
-            <p className="text-xs text-center leading-relaxed" style={{ color: 'var(--color-text-tertiary)' }}>
+            <p
+              className="text-xs text-center leading-relaxed whitespace-pre-line"
+              style={{ color: 'var(--color-text-tertiary)' }}
+            >
               Все данные хранятся локально на устройстве.{'\n'}
               Прогнозы не являются психологическим советом.
             </p>
