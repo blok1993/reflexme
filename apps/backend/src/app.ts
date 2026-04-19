@@ -10,19 +10,43 @@ const app = express();
 
 app.set('trust proxy', 1);
 
-/** Несколько фронтов (prod-домен + Render и т.д.): `FRONTEND_URL=https://a.ru,https://b.onrender.com` */
-function resolveCorsOrigin(): boolean | ((origin: string | undefined, cb: (err: Error | null, ok?: boolean) => void) => void) {
+function canonicalOrigin(url: string): string {
+  try {
+    return new URL(url).origin;
+  } catch {
+    return url.trim().replace(/\/$/, '');
+  }
+}
+
+/**
+ * Несколько фронтов: `FRONTEND_URL=https://a.ru,https://b.onrender.com`
+ * В ответе должен быть **один** `Access-Control-Allow-Origin` = origin из запроса, никогда вся строка с запятыми
+ * (если в `cors` передать целиком `FRONTEND_URL` со запятыми, браузер падает с «multiple values»).
+ */
+function resolveCorsOrigin():
+  | boolean
+  | ((
+      origin: string | undefined,
+      cb: (err: Error | null, allow?: boolean | string) => void,
+    ) => void) {
   const raw = process.env.FRONTEND_URL?.trim();
   if (!raw) return true;
 
-  const allowed = raw.split(',').map((s) => s.trim()).filter(Boolean);
+  const allowedCanon = new Set(
+    raw
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map(canonicalOrigin),
+  );
+
   return (origin, cb) => {
     if (!origin) {
       cb(null, true);
       return;
     }
-    if (allowed.includes(origin)) {
-      cb(null, true);
+    if (allowedCanon.has(canonicalOrigin(origin))) {
+      cb(null, origin);
       return;
     }
     cb(new Error(`CORS blocked origin: ${origin}`));
