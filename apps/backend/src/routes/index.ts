@@ -136,12 +136,16 @@ async function maybeUpdatePatternCards(userId: string): Promise<void> {
   }
 }
 
-/** Find or create a user identified by their device ID. */
+/** Find or create a user identified by their device ID.
+ *
+ * Uses upsert to avoid a race condition where two simultaneous first-time requests
+ * with the same deviceId both pass the findUnique check and then one fails with P2002.
+ */
 async function getOrCreateUser(deviceId: string) {
-  const existing = await prisma.user.findUnique({ where: { deviceId } });
-  if (existing) return existing;
-  return prisma.user.create({
-    data: { deviceId, timezone: 'UTC', preferredTone: 'neutral', onboardingCompleted: false },
+  return prisma.user.upsert({
+    where: { deviceId },
+    update: {},
+    create: { deviceId, timezone: 'UTC', preferredTone: 'neutral', onboardingCompleted: false },
   });
 }
 

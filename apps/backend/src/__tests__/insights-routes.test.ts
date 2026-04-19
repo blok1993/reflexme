@@ -30,6 +30,7 @@ vi.mock('../lib/prisma.js', () => ({
       findUnique: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
+      upsert: vi.fn(),
       count: vi.fn(),
     },
     dailyCheckin: {
@@ -65,6 +66,7 @@ function headers() {
 describe('GET /api/v1/insights/accuracy-curve', () => {
   beforeEach(async () => {
     const { prisma } = await import('../lib/prisma.js');
+    vi.mocked(prisma.user.upsert).mockResolvedValue(mockUser as never);
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never);
   });
 
@@ -163,6 +165,7 @@ describe('GET /api/v1/insights/accuracy-curve', () => {
 describe('GET /api/v1/insights/vocabulary', () => {
   beforeEach(async () => {
     const { prisma } = await import('../lib/prisma.js');
+    vi.mocked(prisma.user.upsert).mockResolvedValue(mockUser as never);
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never);
   });
 
@@ -220,6 +223,7 @@ describe('GET /api/v1/insights/vocabulary', () => {
 describe('GET /api/v1/insights/patterns', () => {
   beforeEach(async () => {
     const { prisma } = await import('../lib/prisma.js');
+    vi.mocked(prisma.user.upsert).mockResolvedValue(mockUser as never);
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never);
     vi.mocked(prisma.review.count).mockResolvedValue(5);
   });
@@ -245,11 +249,13 @@ describe('GET /api/v1/insights/patterns', () => {
         highlight: '23% случаев',
       },
     ];
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+    const userWithCards = {
       ...mockUser,
       patternCards: JSON.stringify(cachedCards),
       patternCardsUpdatedAt: new Date(),
-    } as never);
+    };
+    vi.mocked(prisma.user.upsert).mockResolvedValue(userWithCards as never);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(userWithCards as never);
 
     const res = await request(app)
       .get('/api/v1/insights/patterns')
@@ -278,6 +284,7 @@ describe('GET /api/v1/insights/patterns', () => {
 describe('GET /api/v1/profile', () => {
   it('returns null profile for new user', async () => {
     const { prisma } = await import('../lib/prisma.js');
+    vi.mocked(prisma.user.upsert).mockResolvedValue(mockUser as never);
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never);
 
     const res = await request(app)
@@ -291,11 +298,13 @@ describe('GET /api/v1/profile', () => {
 
   it('returns profile when summary exists', async () => {
     const { prisma } = await import('../lib/prisma.js');
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+    const userWithProfile = {
       ...mockUser,
       profileSummary: 'Пользователь часто испытывает тревогу.',
       profileUpdatedAt: new Date(),
-    } as never);
+    };
+    vi.mocked(prisma.user.upsert).mockResolvedValue(userWithProfile as never);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(userWithProfile as never);
 
     const res = await request(app)
       .get('/api/v1/profile')
@@ -311,6 +320,7 @@ describe('GET /api/v1/profile', () => {
 describe('POST /api/v1/profile/refresh', () => {
   it('returns 400 when fewer than 5 reviews', async () => {
     const { prisma } = await import('../lib/prisma.js');
+    vi.mocked(prisma.user.upsert).mockResolvedValue(mockUser as never);
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never);
     vi.mocked(prisma.review.count).mockResolvedValue(3);
 

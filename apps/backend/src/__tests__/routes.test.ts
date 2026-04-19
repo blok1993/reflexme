@@ -46,6 +46,7 @@ vi.mock('../lib/prisma.js', () => ({
       findUnique: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
+      upsert: vi.fn(),
     },
     dailyCheckin: {
       findUnique: vi.fn(),
@@ -114,6 +115,7 @@ describe('Device ID requirement', () => {
 describe('GET /api/v1/users/me', () => {
   beforeEach(async () => {
     const { prisma } = await import('../lib/prisma.js');
+    vi.mocked(prisma.user.upsert).mockResolvedValue(mockUser as never);
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never);
   });
 
@@ -128,16 +130,16 @@ describe('GET /api/v1/users/me', () => {
 
   it('creates user if not found', async () => {
     const { prisma } = await import('../lib/prisma.js');
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
-    vi.mocked(prisma.user.create).mockResolvedValue(mockUser as never);
+    // getOrCreateUser now uses upsert — it handles both find and create atomically.
+    vi.mocked(prisma.user.upsert).mockResolvedValue(mockUser as never);
 
     const res = await request(app)
       .get('/api/v1/users/me')
       .set(authHeaders());
 
     expect(res.status).toBe(200);
-    expect(prisma.user.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ deviceId: DEVICE_ID }) }),
+    expect(prisma.user.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ create: expect.objectContaining({ deviceId: DEVICE_ID }) }),
     );
   });
 });
@@ -147,6 +149,7 @@ describe('GET /api/v1/users/me', () => {
 describe('POST /api/v1/checkins', () => {
   beforeEach(async () => {
     const { prisma } = await import('../lib/prisma.js');
+    vi.mocked(prisma.user.upsert).mockResolvedValue(mockUser as never);
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never);
     vi.mocked(prisma.dailyCheckin.findUnique).mockResolvedValue(null);
     vi.mocked(prisma.dailyCheckin.create).mockResolvedValue(mockCheckin as never);
@@ -232,6 +235,7 @@ describe('POST /api/v1/reviews — accuracy calculation', () => {
 
   beforeEach(async () => {
     const { prisma } = await import('../lib/prisma.js');
+    vi.mocked(prisma.user.upsert).mockResolvedValue(mockUser as never);
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never);
     vi.mocked(prisma.prediction.findUnique).mockResolvedValue(mockPrediction as never);
     vi.mocked(prisma.review.findUnique).mockResolvedValue(null);
@@ -326,6 +330,7 @@ describe('POST /api/v1/reviews — accuracy calculation', () => {
 describe('POST /api/v1/users/me — field validation', () => {
   beforeEach(async () => {
     const { prisma } = await import('../lib/prisma.js');
+    vi.mocked(prisma.user.upsert).mockResolvedValue(mockUser as never);
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser as never);
     vi.mocked(prisma.user.update).mockResolvedValue(mockUser as never);
   });
