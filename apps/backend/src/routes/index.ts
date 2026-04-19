@@ -613,8 +613,11 @@ router.get('/api/v1/profile', async (req, res) => {
   });
 });
 
-/** POST force-refresh the profile — useful for dev/testing */
+/** POST force-refresh the profile — useful for dev/testing, disabled in production */
 router.post('/api/v1/profile/refresh', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return fail(res, 'FORBIDDEN', 'Not available in production', 403);
+  }
   const user = await getOrCreateUser(req.deviceId);
   const totalReviews = await prisma.review.count({ where: { userId: user.id } });
 
@@ -737,8 +740,11 @@ router.get('/api/v1/insights/patterns', async (req, res) => {
   });
 });
 
-/** Force-refresh pattern cards (dev/testing) */
+/** Force-refresh pattern cards (dev/testing), disabled in production */
 router.post('/api/v1/insights/patterns/refresh', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return fail(res, 'FORBIDDEN', 'Not available in production', 403);
+  }
   const user = await getOrCreateUser(req.deviceId);
   const totalReviews = await prisma.review.count({ where: { userId: user.id } });
 

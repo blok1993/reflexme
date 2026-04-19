@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { requestLogger } from './middleware/request-logger.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { deviceMiddleware } from './middleware/device.js';
@@ -66,7 +66,26 @@ app.use(
 app.use(express.json({ limit: '50kb' }));
 app.use(requestLogger);
 
-// General API rate limit
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+/**
+ * Use X-Device-ID as the rate-limit key (per user, not per IP).
+ * Falls back to IP (via ipKeyGenerator for IPv6 safety) when the header is absent.
+ */
+function deviceKey(req: express.Request): string {
+  const id = req.headers['x-device-id'];
+  return (typeof id === 'string' && id.length > 0) ? id : ipKeyGenerator(req);
+}
+
+/** Skip all rate limits in the test environment so unit/integration tests are unaffected. */
+const skipInTests = () => process.env.NODE_ENV === 'test';
+
+const RL_MESSAGE = (code: string, message: string) =>
+  ({ success: false, error: { code, message } });
+
+// ─── Rate limits ─────────────────────────────────────────────────────────────
+
+// General: 120 requests / minute per IP — broad protection against bots
 app.use(
   '/api/',
   rateLimit({
@@ -74,19 +93,62 @@ app.use(
     max: 120,
     standardHeaders: true,
     legacyHeaders: false,
-    message: { success: false, error: { code: 'RATE_LIMITED', message: 'Too many requests' } },
+    message: RL_MESSAGE('RATE_LIMITED', 'Too many requests'),
   }),
 );
 
-// Stricter limit on the expensive LLM generation endpoint
+// Checkins: max 5 attempts / day per deviceId
+// (business logic already prevents >1 per day via DB unique; this blocks flood at HTTP level)
+app.use(
+  '/api/v1/checkins',
+  rateLimit({
+    windowMs: 24 * 60 * 60 * 1000,
+    max: 5,
+    keyGenerator: deviceKey,
+    skip: skipInTests,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: RL_MESSAGE('RATE_LIMITED', 'Check-in limit reached for today'),
+  }),
+);
+
+// Prediction generate: max 3 / day per deviceId (1 real use + buffer for retries)
+// Also keeps the original IP-based 10/hour limit as a second layer.
+app.use(
+  '/api/v1/predictions/generate',
+  rateLimit({
+    windowMs: 24 * 60 * 60 * 1000,
+    max: 3,
+    keyGenerator: deviceKey,
+    skip: skipInTests,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: RL_MESSAGE('RATE_LIMITED', 'Daily prediction limit reached'),
+  }),
+);
 app.use(
   '/api/v1/predictions/generate',
   rateLimit({
     windowMs: 60 * 60 * 1000,
     max: 10,
+    skip: skipInTests,
     standardHeaders: true,
     legacyHeaders: false,
-    message: { success: false, error: { code: 'RATE_LIMITED', message: 'Too many predictions generated' } },
+    message: RL_MESSAGE('RATE_LIMITED', 'Too many predictions generated'),
+  }),
+);
+
+// Weekly insights: max 10 / hour per deviceId — endpoint can call OpenAI when cache is stale
+app.use(
+  '/api/v1/insights/weekly',
+  rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 10,
+    keyGenerator: deviceKey,
+    skip: skipInTests,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: RL_MESSAGE('RATE_LIMITED', 'Too many insights requests'),
   }),
 );
 
