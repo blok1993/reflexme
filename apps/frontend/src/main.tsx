@@ -20,6 +20,9 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 30_000,
+      // Keep unused data in memory for 24h so navigating back to the same screen
+      // within a session doesn't trigger a refetch (tab switches, back button, etc.).
+      gcTime: 24 * 60 * 60 * 1000,
       // Don't retry client errors (404, 409 etc.) — they won't resolve on retry.
       // Retry server errors (5xx) and network errors up to 2 times.
       retry: (failureCount, error) => {

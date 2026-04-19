@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@predictor/contracts": "0.1.0",
+    "@tanstack/query-sync-storage-persister": "^5.99.2",
     "@tanstack/react-query": "^5.62.0",
+    "@tanstack/react-query-persist-client": "^5.99.2",
     "framer-motion": "^11.12.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

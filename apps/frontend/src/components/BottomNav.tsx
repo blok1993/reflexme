@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDailyStatus } from '../api/hooks';
-import { getTodayISO } from '../lib/date';
+import { getTodayISO, isEvening } from '../lib/date';
 
 function TodayIcon({ active }: { active: boolean }) {
   return (
@@ -72,7 +72,7 @@ export function BottomNav() {
   function handleTodayTap() {
     if (!status) { navigate('/checkin'); return; }
     if (status.status === 'checkin_missing') navigate('/checkin');
-    else if (status.status === 'review_completed') navigate('/insights');
+    else if (status.status === 'prediction_ready' && isEvening()) navigate('/review');
     else navigate('/prediction');
   }
 

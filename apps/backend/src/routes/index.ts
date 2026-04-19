@@ -337,27 +337,39 @@ router.post('/api/v1/predictions/generate', async (req, res) => {
     return fail(res, 'GENERATION_FAILED', 'Failed to generate prediction. Please try again.', 503);
   }
 
-  const prediction = await prisma.prediction.create({
-    data: {
-      userId: user.id,
-      checkinId: checkin.id,
-      date: checkin.date,
-      dayType: llm.dayType,
-      likelyEvent: llm.likelyEvent,
-      strengthPoint: llm.strengthPoint,
-      trapWarning: llm.trapWarning,
-      confidence: llm.confidence,
-      modelVersion: llm.modelVersion,
-      generatedFrom: {
-        mood: checkin.mood,
-        focus: checkin.focus,
-        contextLength: checkin.contextText?.length ?? 0,
-        preferredTone: user.preferredTone,
-      },
-      // Store raw response only outside production (debugging aid)
-      rawResponse: process.env.NODE_ENV !== 'production' ? (llm as Prisma.InputJsonValue) : undefined,
-    },
-  });
+  // Double-checked create: re-check inside a serializable transaction so that a
+  // concurrent request that won the race returns the already-created prediction
+  // instead of triggering a second LLM call and crashing on the unique constraint.
+  let prediction;
+  try {
+    prediction = await prisma.$transaction(async (tx) => {
+      const race = await tx.prediction.findUnique({ where: { checkinId: checkin.id } });
+      if (race) return race;
+      return tx.prediction.create({
+        data: {
+          userId: user.id,
+          checkinId: checkin.id,
+          date: checkin.date,
+          dayType: llm.dayType,
+          likelyEvent: llm.likelyEvent,
+          strengthPoint: llm.strengthPoint,
+          trapWarning: llm.trapWarning,
+          confidence: llm.confidence,
+          modelVersion: llm.modelVersion,
+          generatedFrom: {
+            mood: checkin.mood,
+            focus: checkin.focus,
+            contextLength: checkin.contextText?.length ?? 0,
+            preferredTone: user.preferredTone,
+          },
+          rawResponse: process.env.NODE_ENV !== 'production' ? (llm as Prisma.InputJsonValue) : undefined,
+        },
+      });
+    });
+  } catch (err) {
+    logger.error({ err: (err as Error).message, checkinId: checkin.id }, 'Prediction create failed');
+    return fail(res, 'GENERATION_FAILED', 'Failed to save prediction. Please try again.', 503);
+  }
 
   ok(res, { prediction }, 201);
 });
@@ -555,20 +567,23 @@ router.get('/api/v1/insights/weekly', async (req, res) => {
         focus: r.prediction.checkin?.focus ?? 'work',
       })),
     });
-    // Persist cache (non-blocking)
-    prisma.user.update({
-      where: { id: user.id },
-      data: {
-        weeklyPatternsCache: JSON.stringify({
-          week: startDate,
-          patterns,
-          reviewCount: totalDays,
-          generatedAt: Date.now(),
-        } satisfies WeeklyCache),
-      },
-    }).catch((err: unknown) =>
-      logger.warn({ err: err instanceof Error ? err.message : String(err) }, 'Failed to cache weekly patterns'),
-    );
+    // Persist cache — awaited so that the next request sees the saved result and
+    // does not regenerate (and call LLM) again due to a failed fire-and-forget write.
+    try {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          weeklyPatternsCache: JSON.stringify({
+            week: startDate,
+            patterns,
+            reviewCount: totalDays,
+            generatedAt: Date.now(),
+          } satisfies WeeklyCache),
+        },
+      });
+    } catch (err: unknown) {
+      logger.error({ err: err instanceof Error ? err.message : String(err) }, 'Failed to cache weekly patterns — next request will regenerate');
+    }
   } else {
     patterns = cached.patterns;
     logger.debug({ week: startDate }, 'Weekly patterns served from cache');

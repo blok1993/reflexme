@@ -21,6 +21,8 @@ export function useUser() {
     queryFn: () => api.getMe(),
     /** Короткая цепочка ретраев: при таймауте 65s несколько попыток = слишком долго на cold start. */
     retry: 1,
+    // User profile changes only via explicit PATCH — no need to refetch every 30s.
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -40,6 +42,9 @@ export function useDailyStatus(date?: string) {
     queryKey: keys.dailyStatus(d),
     queryFn: () => api.getDailyStatus(d),
     retry: 1,
+    // Status changes only after user actions (checkin / generate / review).
+    // Mutations invalidate this key explicitly, so 60s stale is safe.
+    staleTime: 60_000,
   });
 }
 
@@ -73,6 +78,8 @@ export function usePrediction(date?: string) {
     queryKey: keys.prediction(d),
     queryFn: () => api.getPredictionByDate(d),
     retry: false,
+    // A prediction for a specific date is immutable once created — never changes.
+    staleTime: Infinity,
   });
 }
 
@@ -96,6 +103,8 @@ export function useReview(date?: string) {
     queryKey: keys.review(d),
     queryFn: () => api.getReviewByDateOptional(d),
     retry: false,
+    // A review for a specific date is immutable once submitted — never changes.
+    staleTime: Infinity,
   });
 }
 
@@ -105,18 +114,22 @@ export function useCreateReview() {
     mutationFn: (dto: CreateReviewDto) => api.createReview(dto),
     onSuccess: (data) => {
       const d = data.review.date;
+      // Seed review cache immediately so UI reflects the new review without a round-trip.
       qc.setQueryData(keys.review(d), { review: data.review });
-      // Immediate: status, review, history, accuracy curve, vocabulary, weekly tab
-      qc.invalidateQueries({ queryKey: keys.review(d) });
+
+      // Immediate invalidations: data that changed synchronously on the backend.
       qc.invalidateQueries({ queryKey: keys.dailyStatus(d) });
       qc.invalidateQueries({ queryKey: keys.history });
       qc.invalidateQueries({ queryKey: ['accuracy-curve'] });
       qc.invalidateQueries({ queryKey: ['vocabulary'] });
-      qc.invalidateQueries({ queryKey: ['insights'] });
 
-      // Delayed: pattern cards and profile summary are updated by a fire-and-forget
-      // LLM call on the backend — give it ~15s to finish before re-fetching.
+      // Delayed invalidations (~15s): backend runs fire-and-forget LLM updates
+      // (profile summary, pattern cards) after the review is saved. Weekly insights
+      // are also delayed here — the backend marks its cache as stale on POST /reviews,
+      // so fetching immediately would trigger an LLM call if the cache is >8h old.
+      // Waiting 15s gives the backend time to stabilise before the client refetches.
       setTimeout(() => {
+        qc.invalidateQueries({ queryKey: ['insights'] });
         qc.invalidateQueries({ queryKey: ['pattern-cards'] });
         qc.invalidateQueries({ queryKey: ['profile'] });
       }, 15_000);
@@ -127,7 +140,12 @@ export function useCreateReview() {
 // ─── History ──────────────────────────────────────────────────────────
 
 export function useHistory() {
-  return useQuery({ queryKey: keys.history, queryFn: () => api.getHistory() });
+  return useQuery({
+    queryKey: keys.history,
+    queryFn: () => api.getHistory(),
+    // History changes only after review submission which explicitly invalidates this key.
+    staleTime: 5 * 60 * 1000,
+  });
 }
 
 // ─── Weekly insights ──────────────────────────────────────────────────
