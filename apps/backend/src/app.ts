@@ -74,7 +74,7 @@ app.use(requestLogger);
  */
 function deviceKey(req: express.Request): string {
   const id = req.headers['x-device-id'];
-  return (typeof id === 'string' && id.length > 0) ? id : ipKeyGenerator(req);
+  return (typeof id === 'string' && id.length > 0) ? id : ipKeyGenerator(req.ip ?? '127.0.0.1');
 }
 
 /** Skip all rate limits in the test environment so unit/integration tests are unaffected. */
