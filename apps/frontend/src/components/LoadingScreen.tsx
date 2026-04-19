@@ -1,6 +1,22 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+function LogoMark({ className }: { className?: string }) {
+  return (
+    <img
+      src="/apple-touch-icon.png"
+      alt=""
+      width={56}
+      height={56}
+      decoding="async"
+      draggable={false}
+      className={className ?? 'h-14 w-14 rounded-2xl object-cover select-none shrink-0'}
+      style={{ boxShadow: '0 2px 16px rgba(0,0,0,0.1)' }}
+      aria-hidden
+    />
+  );
+}
+
 const PHRASES = [
   { emoji: '📖', text: 'Читаю твой день...' },
   { emoji: '🔍', text: 'Смотрю на контекст...' },
@@ -48,13 +64,17 @@ export function LoadingScreen({ message }: LoadingScreenProps) {
                 transition={{ duration: 0.28 }}
                 className="flex flex-col items-center gap-3"
               >
-                <span
-                  className="text-[2.75rem] leading-none select-none"
-                  style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.06))' }}
-                  aria-hidden
-                >
-                  {message ? '🔮' : PHRASES[phraseIndex].emoji}
-                </span>
+                {message || PHRASES[phraseIndex].emoji === '🔮' ? (
+                  <LogoMark />
+                ) : (
+                  <span
+                    className="text-[2.75rem] leading-none select-none"
+                    style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.06))' }}
+                    aria-hidden
+                  >
+                    {PHRASES[phraseIndex].emoji}
+                  </span>
+                )}
                 <p
                   className="text-base font-medium text-center max-w-[min(20rem,85vw)]"
                   style={{ color: 'var(--color-text-secondary)' }}
