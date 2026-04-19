@@ -49,15 +49,18 @@ function resolveCorsOrigin():
       cb(null, origin);
       return;
     }
-    cb(new Error(`CORS blocked origin: ${origin}`));
+    // Не кидаем Error — иначе OPTIONS может завершиться 500 и браузер «висит» на preflight.
+    cb(null, false);
   };
 }
 
 app.use(
   cors({
     origin: resolveCorsOrigin(),
-    allowedHeaders: ['Content-Type', 'X-Device-ID'],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Device-ID', 'X-Device-Id'],
     credentials: false,
+    optionsSuccessStatus: 204,
   }),
 );
 app.use(express.json({ limit: '50kb' }));
