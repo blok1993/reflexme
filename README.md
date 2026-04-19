@@ -179,4 +179,9 @@ npm run test           # 72 E2E теста (нужен запущенный фр
 4. Backend → Railway или Render  
 5. **Бэкенд:** `DATABASE_URL`, `OPENAI_API_KEY`, `FRONTEND_URL` (для CORS: один origin или **через запятую** несколько, напр. `https://reflexme.ru,https://reflexme-front.onrender.com`)
 6. **Фронт (Vite):** при отдельном хосте API задать **`VITE_API_BASE_URL`**, иначе запросы пойдут на тот же домен что и SPA и получат HTML вместо JSON (ошибки вида `ApiError: HTTP 200`). Пример: `https://твой-api.onrender.com/api/v1`
-7. **SPA / «Not Found» на `/onboarding`:** для прямых переходов на любой клиентский маршрут сервер должен отдавать **`index.html`**, а не 404 (в корне сборки уже есть **`public/_redirects`** для Netlify и др.; для **Vercel** — **`vercel.json`**). На **Render Static** при необходимости включи rewrite «все пути → `/index.html`» в настройках сервиса. Редирект только `/onboarding`→`/` не нужен: нужен общий fallback.
+7. **SPA и F5 / прямые URL (`/checkin`, `/onboarding`, …):** сервер должен отвечать **`index.html`** на любой путь (**rewrite**, не редирект на `/`).
+   - **Netlify:** в сборке уже есть **`public/_redirects`** (`/*` → `/index.html` с 200).
+   - **Vercel:** файл **`apps/frontend/vercel.json`** с rewrites.
+   - **Render Static:** в панели сервиса → **Redirects / Rewrites** → правило: **Source** `/*`, **Destination** `/index.html`, **Action** **Rewrite**.
+   - **Apache (shared hosting):** в сборке есть **`public/.htaccess`** — включи `AllowOverride`/mod_rewrite.
+   - **Обход без доступа к серверу:** при сборке задать **`VITE_USE_HASH_ROUTER=true`** → адреса вида `https://site.ru/#/checkin` (браузер всегда запрашивает только `/`). Для продакшена предпочтительнее корректный rewrite.

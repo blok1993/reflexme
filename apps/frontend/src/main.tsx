@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, HashRouter } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -11,6 +11,10 @@ import './index.css';
 
 // Ensure device ID is generated and persisted before any API calls
 getDeviceId();
+
+/** Без настройки сервера (rewrite) прямой заход / F5 на `/checkin` даёт 404. `HashRouter` — URL `/#/...`, запрос к серверу всегда `GET /` */
+const useHash = import.meta.env.VITE_USE_HASH_ROUTER === 'true';
+const Router = useHash ? HashRouter : BrowserRouter;
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,7 +46,7 @@ createRoot(rootEl).render(
   <StrictMode>
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
+        <Router>
           <App />
           <Toaster
             position="top-center"
@@ -59,7 +63,7 @@ createRoot(rootEl).render(
               },
             }}
           />
-        </BrowserRouter>
+        </Router>
       </QueryClientProvider>
     </ErrorBoundary>
   </StrictMode>,
