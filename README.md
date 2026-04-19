@@ -177,5 +177,5 @@ npm run test           # 72 E2E теста (нужен запущенный фр
 2. Подключить managed PostgreSQL (Supabase / Neon free tier)
 3. Frontend → Vercel или Netlify  
 4. Backend → Railway или Render  
-5. **Бэкенд:** `DATABASE_URL`, `OPENAI_API_KEY`, `FRONTEND_URL` (URL фронта, для CORS; на Render — `https://твой-фронт.onrender.com`)
+5. **Бэкенд:** `DATABASE_URL`, `OPENAI_API_KEY`, `FRONTEND_URL` (для CORS: один origin или **через запятую** несколько, напр. `https://reflexme.ru,https://reflexme-front.onrender.com`)
 6. **Фронт (Vite):** при отдельном хосте API задать **`VITE_API_BASE_URL`**, иначе запросы пойдут на тот же домен что и SPA и получат HTML вместо JSON (ошибки вида `ApiError: HTTP 200`). Пример: `https://твой-api.onrender.com/api/v1`

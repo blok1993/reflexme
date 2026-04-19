@@ -10,9 +10,28 @@ const app = express();
 
 app.set('trust proxy', 1);
 
+/** Несколько фронтов (prod-домен + Render и т.д.): `FRONTEND_URL=https://a.ru,https://b.onrender.com` */
+function resolveCorsOrigin(): boolean | ((origin: string | undefined, cb: (err: Error | null, ok?: boolean) => void) => void) {
+  const raw = process.env.FRONTEND_URL?.trim();
+  if (!raw) return true;
+
+  const allowed = raw.split(',').map((s) => s.trim()).filter(Boolean);
+  return (origin, cb) => {
+    if (!origin) {
+      cb(null, true);
+      return;
+    }
+    if (allowed.includes(origin)) {
+      cb(null, true);
+      return;
+    }
+    cb(new Error(`CORS blocked origin: ${origin}`));
+  };
+}
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || true,
+    origin: resolveCorsOrigin(),
     allowedHeaders: ['Content-Type', 'X-Device-ID'],
     credentials: false,
   }),
