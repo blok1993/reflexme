@@ -9,6 +9,9 @@
     "apps/*",
     "packages/*"
   ],
+  "prisma": {
+    "schema": "apps/backend/prisma/schema.prisma"
+  },
   "scripts": {
     "dev": "concurrently \"npm run dev -w @predictor/backend\" \"npm run dev -w @predictor/frontend\"",
     "start": "npm run start -w @predictor/backend",
