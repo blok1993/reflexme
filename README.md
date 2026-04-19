@@ -179,3 +179,4 @@ npm run test           # 72 E2E теста (нужен запущенный фр
 4. Backend → Railway или Render  
 5. **Бэкенд:** `DATABASE_URL`, `OPENAI_API_KEY`, `FRONTEND_URL` (для CORS: один origin или **через запятую** несколько, напр. `https://reflexme.ru,https://reflexme-front.onrender.com`)
 6. **Фронт (Vite):** при отдельном хосте API задать **`VITE_API_BASE_URL`**, иначе запросы пойдут на тот же домен что и SPA и получат HTML вместо JSON (ошибки вида `ApiError: HTTP 200`). Пример: `https://твой-api.onrender.com/api/v1`
+7. **SPA / «Not Found» на `/onboarding`:** для прямых переходов на любой клиентский маршрут сервер должен отдавать **`index.html`**, а не 404 (в корне сборки уже есть **`public/_redirects`** для Netlify и др.; для **Vercel** — **`vercel.json`**). На **Render Static** при необходимости включи rewrite «все пути → `/index.html`» в настройках сервиса. Редирект только `/onboarding`→`/` не нужен: нужен общий fallback.

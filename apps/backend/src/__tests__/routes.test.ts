@@ -7,6 +7,12 @@ import app from '../app.js';
 
 const DEVICE_ID = '550e8400-e29b-41d4-a716-446655440000';
 const TODAY = new Date().toISOString().slice(0, 10);
+/** Вчерашний календарный день — ревью для прошлых дней доступен в любое время (нет окна 17:00). */
+const YESTERDAY = (() => {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+})();
 
 const mockUser = {
   id: 'user_1',
@@ -214,7 +220,7 @@ describe('POST /api/v1/reviews — accuracy calculation', () => {
     id: 'pred_1',
     userId: 'user_1',
     checkinId: 'checkin_1',
-    date: TODAY,
+    date: YESTERDAY,
     dayType: 'Test Day',
     likelyEvent: 'Test',
     strengthPoint: 'Test',
