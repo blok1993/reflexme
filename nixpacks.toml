@@ -1,8 +1,6 @@
-# Railway (Nixpacks): ставим зависимости из корня монорепозитория, чтобы
-# npm подхватил workspace-пакет @predictor/contracts (не ищем его в registry).
-#
-# В настройках сервиса Railway укажи Root Directory: predictor
-# (если репозиторий со вложенной папкой predictor).
+# Railway (Nixpacks): ставим зависимости из корня монорепозитория.
+# Root Directory в Railway — либо «predictor», либо корень Git при структуре repo/predictor/apps/...
+# Скрипт scripts/run-prisma.cjs сам находит prisma/schema.prisma в этих случаях.
 
 [phases.install]
 cmds = ["npm ci"]
