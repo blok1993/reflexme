@@ -1,0 +1,14 @@
+# Railway (Nixpacks): ставим зависимости из корня монорепозитория, чтобы
+# npm подхватил workspace-пакет @predictor/contracts (не ищем его в registry).
+#
+# В настройках сервиса Railway укажи Root Directory: predictor
+# (если репозиторий со вложенной папкой predictor).
+
+[phases.install]
+cmds = ["npm ci"]
+
+[phases.build]
+cmds = ["npm run build:backend"]
+
+[start]
+cmd = "npm run start"

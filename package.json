@@ -2,12 +2,17 @@
   "name": "predictor-monorepo",
   "private": true,
   "version": "0.1.0",
+  "engines": {
+    "node": ">=20"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev -w @predictor/backend\" \"npm run dev -w @predictor/frontend\"",
+    "start": "npm run start -w @predictor/backend",
+    "build:backend": "npm run prisma:generate -w @predictor/backend && npm run build -w @predictor/backend",
     "build": "npm run build -ws",
     "prisma:generate": "npm run prisma:generate -w @predictor/backend",
     "prisma:push": "npm run prisma:push -w @predictor/backend",

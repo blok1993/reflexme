@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "build": "node -e \"process.exit(0)\""
+  },
   "main": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts"
