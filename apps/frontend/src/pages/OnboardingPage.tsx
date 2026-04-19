@@ -149,10 +149,18 @@ function WelcomeStep() {
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.1, duration: 0.5, ease: 'easeOut' }}
-        className="w-20 h-20 rounded-3xl mb-8 flex items-center justify-center text-4xl"
-        style={{ background: 'var(--color-text)' }}
+        className="w-24 h-24 rounded-[1.75rem] mb-8 overflow-hidden shadow-md shrink-0"
+        style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}
       >
-        🔮
+        <img
+          src="/apple-touch-icon.png"
+          alt=""
+          width={96}
+          height={96}
+          decoding="async"
+          draggable={false}
+          className="w-full h-full object-cover select-none"
+        />
       </motion.div>
       <motion.h1
         initial={{ opacity: 0, y: 10 }}
