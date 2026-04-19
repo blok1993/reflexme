@@ -22,6 +22,9 @@ import type {
 const BASE =
   (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, '') ?? '/api/v1';
 
+/** Если бэкенд «спит» или не отвечает, без таймаута React Query зависнет в loading навсегда. Free Render может просыпаться десятки секунд. */
+const REQUEST_TIMEOUT_MS = 65_000;
+
 // ─── ApiError ─────────────────────────────────────────────────────────────────
 
 export class ApiError extends Error {
@@ -48,23 +51,44 @@ export class ApiError extends Error {
 // ─── Core fetch wrapper ────────────────────────────────────────────────────────
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
   let response: Response;
   try {
+    const headers = new Headers(init?.headers);
+    headers.set('Content-Type', 'application/json');
+    headers.set(DEVICE_ID_HEADER, getDeviceId());
+
     response = await fetch(`${BASE}${path}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        [DEVICE_ID_HEADER]: getDeviceId(),
-      },
       ...init,
+      headers,
+      signal: controller.signal,
     });
   } catch (networkErr) {
-    // fetch() itself threw — likely offline or DNS failure
+    clearTimeout(timeoutId);
+    if (networkErr instanceof DOMException && networkErr.name === 'AbortError') {
+      throw new ApiError(
+        'Сервер не ответил вовремя (таймаут). На Render бесплатный инстанс может просыпаться ~1 мин; повтори позже или проверь логи бэкенда.',
+        'TIMEOUT',
+        0,
+      );
+    }
+    if (networkErr instanceof Error && networkErr.name === 'AbortError') {
+      throw new ApiError(
+        'Сервер не ответил вовремя (таймаут). На Render бесплатный инстанс может просыпаться ~1 мин; повтори позже или проверь логи бэкенда.',
+        'TIMEOUT',
+        0,
+      );
+    }
     throw new ApiError(
-      'Network request failed. Check your connection.',
+      'Нет сети или сервер недоступен.',
       'NETWORK_ERROR',
       0,
     );
   }
+
+  clearTimeout(timeoutId);
 
   const json = await response.json().catch(() => null);
 

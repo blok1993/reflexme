@@ -16,7 +16,12 @@ export const keys = {
 // ─── User ─────────────────────────────────────────────────────────────
 
 export function useUser() {
-  return useQuery({ queryKey: keys.user, queryFn: () => api.getMe() });
+  return useQuery({
+    queryKey: keys.user,
+    queryFn: () => api.getMe(),
+    /** Короткая цепочка ретраев: при таймауте 65s несколько попыток = слишком долго на cold start. */
+    retry: 1,
+  });
 }
 
 export function useUpdateUser() {
@@ -31,7 +36,11 @@ export function useUpdateUser() {
 
 export function useDailyStatus(date?: string) {
   const d = date ?? getTodayISO();
-  return useQuery({ queryKey: keys.dailyStatus(d), queryFn: () => api.getDailyStatus(d) });
+  return useQuery({
+    queryKey: keys.dailyStatus(d),
+    queryFn: () => api.getDailyStatus(d),
+    retry: 1,
+  });
 }
 
 // ─── Checkin ──────────────────────────────────────────────────────────

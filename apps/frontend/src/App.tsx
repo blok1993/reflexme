@@ -11,15 +11,18 @@ import { PredictionDetailPage } from './pages/PredictionDetailPage';
 import { ReviewPage } from './pages/ReviewPage';
 import { InsightsPage } from './pages/InsightsPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { ApiError } from './api/client';
 import { useUser, useDailyStatus } from './api/hooks';
 import { getTodayISO, isEvening } from './lib/date';
 import { initSentry, identifyUser } from './lib/sentry';
 
 function SmartRedirect() {
   const navigate = useNavigate();
-  const { data: userData, isLoading: userLoading } = useUser();
+  const userQ = useUser();
   const today = getTodayISO();
-  const { data: statusData, isLoading: statusLoading } = useDailyStatus(today);
+  const statusQ = useDailyStatus(today);
+  const { data: userData, isLoading: userLoading } = userQ;
+  const { data: statusData, isLoading: statusLoading } = statusQ;
 
   // Identify user in Sentry for error context
   useEffect(() => {
@@ -29,6 +32,7 @@ function SmartRedirect() {
   }, [userData]);
 
   useEffect(() => {
+    if (userQ.isError || statusQ.isError) return;
     if (userLoading || statusLoading) return;
     const user = userData?.user;
     if (!user || !user.onboardingCompleted) {
@@ -52,7 +56,48 @@ function SmartRedirect() {
     } else {
       navigate('/insights', { replace: true });
     }
-  }, [userLoading, statusLoading, userData, statusData]);
+  }, [
+    userQ.isError,
+    statusQ.isError,
+    userLoading,
+    statusLoading,
+    userData,
+    statusData,
+    navigate,
+  ]);
+
+  if (userQ.isError || statusQ.isError) {
+    const message =
+      userQ.error instanceof ApiError
+        ? userQ.error.message
+        : statusQ.error instanceof ApiError
+          ? statusQ.error.message
+          : 'Не удалось связаться с сервером.';
+    return (
+      <div
+        className="page flex min-h-dvh flex-col items-center justify-center gap-4 px-6 text-center"
+        role="alert"
+      >
+        <p className="text-base font-semibold" style={{ color: 'var(--color-text)' }}>
+          Не удалось загрузить приложение
+        </p>
+        <p className="text-sm max-w-sm" style={{ color: 'var(--color-text-secondary)' }}>
+          {message}
+        </p>
+        <button
+          type="button"
+          className="tap-scale rounded-2xl px-6 py-3 text-sm font-semibold"
+          style={{ background: 'var(--color-text)', color: '#FFFFFF' }}
+          onClick={() => {
+            void userQ.refetch();
+            void statusQ.refetch();
+          }}
+        >
+          Повторить
+        </button>
+      </div>
+    );
+  }
 
   return <LoadingScreen message="Загрузка..." />;
 }
