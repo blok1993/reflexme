@@ -18,7 +18,9 @@ import type {
   PatternCardsPayload,
 } from '@predictor/contracts';
 
-const BASE = '/api/v1';
+/** Dev: Vite proxies `/api` → backend. Prod: set `VITE_API_BASE_URL` to backend origin + path, e.g. `https://reflexme-api.onrender.com/api/v1` */
+const BASE =
+  (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, '') ?? '/api/v1';
 
 // ─── ApiError ─────────────────────────────────────────────────────────────────
 
@@ -67,8 +69,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const json = await response.json().catch(() => null);
 
   if (!response.ok || !json?.success) {
+    const fallbackMsg =
+      response.ok && json == null
+        ? 'Ответ не JSON (часто отдаётся HTML со статикой). Укажи VITE_API_BASE_URL на URL бэкенда в настройках сборки.'
+        : `HTTP ${response.status}`;
     throw new ApiError(
-      json?.error?.message ?? `HTTP ${response.status}`,
+      json?.error?.message ?? fallbackMsg,
       json?.error?.code ?? 'HTTP_ERROR',
       response.status,
     );
