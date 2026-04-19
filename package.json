@@ -15,6 +15,7 @@
   "scripts": {
     "dev": "concurrently \"npm run dev -w @predictor/backend\" \"npm run dev -w @predictor/frontend\"",
     "start": "npm run start -w @predictor/backend",
+    "start:railway": "npm run prisma:push && npm run start",
     "build:backend": "node scripts/run-prisma.cjs generate && npm run build -w @predictor/backend",
     "build": "npm run build -ws",
     "prisma:generate": "node scripts/run-prisma.cjs generate",
