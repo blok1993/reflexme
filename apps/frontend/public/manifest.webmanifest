@@ -1,0 +1,36 @@
+{
+  "id": "/",
+  "name": "ReflexMe — утром прогноз, вечером проверка",
+  "short_name": "ReflexMe",
+  "description": "Утром — прогноз. Вечером — проверка. Персональный цикл самонаблюдения и точности прогнозов.",
+  "lang": "ru",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "browser"],
+  "orientation": "portrait-primary",
+  "background_color": "#F7F4EF",
+  "theme_color": "#F7F4EF",
+  "categories": ["health", "lifestyle", "wellness"],
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
