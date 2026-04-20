@@ -3,7 +3,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { PredictionCard, ReviewCard } from '../components/PredictionCard';
-import { ConfidenceBadge } from '../components/ConfidenceBadge';
 import { SkeletonPredictionCard } from '../components/SkeletonCard';
 import { useCreateReview, usePrediction, useReview } from '../api/hooks';
 import { formatDateRu, getTodayISO, isEvening, timeUntilEvening } from '../lib/date';
@@ -151,7 +150,6 @@ export function PredictionDetailPage() {
               >
                 {prediction.dayType}
               </h1>
-              <ConfidenceBadge confidence={prediction.confidence} />
             </div>
 
             <div className="flex flex-col gap-3 mb-5">
