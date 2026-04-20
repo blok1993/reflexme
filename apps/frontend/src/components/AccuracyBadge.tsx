@@ -8,7 +8,7 @@ interface AccuracyBadgeProps {
  * reviews are collected; falls back to a neutral "accumulating" badge.
  */
 export function AccuracyBadge({ totalReviews, accuracyPercent }: AccuracyBadgeProps) {
-  const MIN_REVIEWS = 7;
+  const MIN_REVIEWS = 5;
   const hasData = totalReviews >= MIN_REVIEWS && accuracyPercent !== null;
 
   if (!hasData) {

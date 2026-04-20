@@ -96,7 +96,7 @@ async function maybeUpdateProfile(userId: string): Promise<void> {
  */
 async function maybeUpdatePatternCards(userId: string): Promise<void> {
   const totalReviews = await prisma.review.count({ where: { userId } });
-  if (totalReviews < 7) return;
+  if (totalReviews < 5) return;
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) return;
@@ -755,8 +755,8 @@ router.get('/api/v1/insights/patterns', async (req, res) => {
     cards,
     generatedAt: user.patternCardsUpdatedAt ?? null,
     totalReviews,
-    hasEnoughData: totalReviews >= 7,
-    minimumRequired: 7,
+    hasEnoughData: totalReviews >= 5,
+    minimumRequired: 5,
   });
 });
 
