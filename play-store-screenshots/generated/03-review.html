@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>ReflexMe — Вечерняя проверка</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1920px;
+    overflow: hidden;
+    background: #EDE9F4;
+    font-family: 'Inter', -apple-system, 'SF Pro Display', sans-serif;
+    position: relative;
+  }
+
+  /* ── BACKGROUND — вечерний градиент ── */
+  .bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 900px 600px  at 50% -80px,  rgba(255,195,100,0.38) 0%, transparent 60%),
+      radial-gradient(ellipse 700px 700px  at -5% 55%,    rgba(160,120,255,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 800px 900px  at 50%  115%,  rgba(130,80,255,0.28)  0%, transparent 60%),
+      radial-gradient(ellipse 500px 500px  at 108% 80%,   rgba(100,60,220,0.10)  0%, transparent 50%);
+  }
+  .orb { position: absolute; border-radius: 50%; filter: blur(110px); pointer-events: none; }
+  .o1 { width: 500px; height: 500px; background: rgba(255,175,80,0.18);  top:-180px; left:-120px; }
+  .o2 { width: 600px; height: 700px; background: rgba(120,70,240,0.18);  bottom:-200px; left:50%; transform:translateX(-50%); }
+  .o3 { width: 320px; height: 320px; background: rgba(180,140,255,0.12); top:500px; right:-80px; }
+
+  .dots { position: absolute; inset: 0; pointer-events: none; }
+
+  /* ── TOP TEXT ── */
+  .top {
+    position: absolute;
+    top: 80px; left: 0; right: 0;
+    text-align: center;
+    padding: 0 80px;
+    z-index: 10;
+  }
+  .brand {
+    font-size: 24px; font-weight: 600;
+    letter-spacing: 10px; text-transform: uppercase;
+    color: rgba(50,20,80,0.32); margin-bottom: 28px;
+  }
+  .h1 {
+    font-size: 92px; font-weight: 800;
+    line-height: 1.04; letter-spacing: -3.5px;
+    color: #130D22; margin-bottom: 20px;
+  }
+  .sub {
+    font-size: 33px; font-weight: 400;
+    color: rgba(50,20,80,0.44); line-height: 1.45;
+  }
+
+  /* ── PHONE ── */
+  .phone {
+    position: absolute;
+    top: 610px;
+    left: 50%; transform: translateX(-50%);
+    width: 540px; height: 1130px;
+    z-index: 5;
+  }
+  .shell {
+    width: 100%; height: 100%;
+    background: #181818;
+    border-radius: 48px;
+    padding: 11px;
+    position: relative;
+    box-shadow:
+      inset 0 0 0 1.5px rgba(255,255,255,0.08),
+      0 40px 120px rgba(60,20,120,0.40),
+      0 14px 36px rgba(0,0,0,0.22);
+  }
+  .shell::before {
+    content:''; position:absolute; left:-4px; top:150px;
+    width:4px; height:55px; background:#252525; border-radius:2px 0 0 2px;
+    box-shadow: 0 76px 0 #252525;
+  }
+  .shell::after {
+    content:''; position:absolute; right:-4px; top:165px;
+    width:4px; height:80px; background:#252525; border-radius:0 2px 2px 0;
+  }
+  .screen {
+    width:100%; height:100%;
+    background:#F6F5F1;
+    border-radius:38px; overflow:hidden; position:relative;
+    display:flex; flex-direction:column;
+  }
+  .hole {
+    position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    width:13px; height:13px; background:#181818; border-radius:50%; z-index:20;
+  }
+
+  /* ── STATUS BAR ── */
+  .sbar {
+    flex-shrink:0; display:flex; justify-content:space-between; align-items:center;
+    padding:10px 24px 0; height:46px;
+    font-size:14px; font-weight:700; color:#111;
+  }
+  .sright { display:flex; align-items:center; gap:5px; }
+
+  /* ── APP CONTENT ── */
+  .ui {
+    flex:1; padding:10px 18px 0;
+    overflow:hidden; display:flex; flex-direction:column; gap:9px;
+  }
+
+  .lbl-top  { font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:rgba(0,0,0,0.3); }
+  .page-title { font-size:26px; font-weight:700; color:#0E0B06; letter-spacing:-0.4px; line-height:1.2; }
+  .page-sub   { font-size:12px; font-weight:400; color:rgba(0,0,0,0.36); margin-top:2px; }
+
+  /* ── PREDICTION CARDS ── */
+  .card {
+    background:#fff;
+    border-radius:16px;
+    padding:14px 16px;
+    border-left:4px solid transparent;
+  }
+  .cb { border-color:#7080D0; }
+  .cg { border-color:#52AE80; }
+  .co { border-color:#E0894A; }
+
+  /* "Чего ожидать" — парит, оценена, с тёплой тенью */
+  .card.rated {
+    transform: translateY(-5px);
+    box-shadow:
+      0 10px 32px rgba(112,128,208,0.22),
+      0 3px 10px rgba(0,0,0,0.07);
+  }
+
+  .card-header {
+    display:flex; align-items:center; gap:7px;
+    margin-bottom:7px;
+  }
+  .card-icon {
+    width:26px; height:26px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+  }
+  .ib { background:rgba(112,128,208,0.11); }
+  .ig { background:rgba(82,174,128,0.11); }
+  .io { background:rgba(224,137,74,0.11); }
+
+  .card-tag {
+    font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
+  }
+  .tb { color:#7080D0; }
+  .tg { color:#52AE80; }
+  .to { color:#E0894A; }
+
+  .card-text {
+    font-size:13px; line-height:1.5; color:#252018; margin-bottom:10px;
+  }
+
+  /* ── VOTE BUTTONS ── */
+  .votes { display:flex; gap:7px; }
+  .vbtn {
+    flex:1; padding:7px 0;
+    border-radius:10px;
+    font-size:12px; font-weight:600;
+    text-align:center;
+    background:#F2F1ED;
+    color:rgba(0,0,0,0.38);
+    border:1.5px solid transparent;
+    transition: all 0.15s;
+  }
+
+  /* Нажатая: "Да" — синяя, вдавлена */
+  .vbtn.active-yes {
+    background:#7080D0;
+    color:#fff;
+    border-color:#5f6fbe;
+    box-shadow: inset 0 2px 5px rgba(50,60,160,0.35), inset 0 1px 2px rgba(0,0,0,0.2);
+    transform: translateY(1px);
+  }
+  /* Нажатая: "Частично" — янтарная */
+  .vbtn.active-partial {
+    background:#E0894A;
+    color:#fff;
+    border-color:#c97438;
+    box-shadow: inset 0 2px 5px rgba(160,80,20,0.30), inset 0 1px 2px rgba(0,0,0,0.15);
+    transform: translateY(1px);
+  }
+  /* Отступающие кнопки */
+  .vbtn.recede {
+    opacity:0.45;
+    transform: translateY(2px) scale(0.97);
+  }
+
+  /* ── CONTEXT SECTION ── */
+  .section-plain {
+    background:#fff; border-radius:16px; padding:14px 16px;
+  }
+  .section-title { font-size:14px; font-weight:600; color:#0E0B06; margin-bottom:4px; }
+  .section-hint  { font-size:11px; color:rgba(0,0,0,0.28); margin-bottom:8px; }
+  .textarea-fake {
+    background:#F2F1ED; border-radius:10px;
+    padding:9px 11px; font-size:12px; color:rgba(0,0,0,0.28);
+    min-height:46px; font-family:inherit;
+  }
+
+  /* ── NAV ── */
+  .nav {
+    flex-shrink:0;
+    border-top:1px solid rgba(0,0,0,0.07);
+    background:rgba(246,245,241,0.97);
+    display:flex; justify-content:space-around; align-items:center;
+    padding:10px 0 16px;
+  }
+  .ni { display:flex; flex-direction:column; align-items:center; gap:4px; font-size:11.5px; font-weight:500; color:rgba(0,0,0,0.28); }
+  .ni.on { color:#0E0B06; }
+
+  /* ── TAGLINE ── */
+  .tag {
+    position:absolute; bottom:50px; left:0; right:0;
+    text-align:center; z-index:10;
+    font-size:28px; font-weight:500;
+    color:rgba(50,20,80,0.34);
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="orb o1"></div>
+<div class="orb o2"></div>
+<div class="orb o3"></div>
+
+<!-- Confetti — намёк на завершение дня -->
+<svg class="dots" viewBox="0 0 1080 1920">
+  <!-- звёздочки и круги вокруг телефона -->
+  <circle cx="80"   cy="700"  r="5"   fill="rgba(255,180,60,0.55)"/>
+  <circle cx="1000" cy="650"  r="4"   fill="rgba(160,100,255,0.45)"/>
+  <circle cx="55"   cy="1050" r="3.5" fill="rgba(130,80,255,0.35)"/>
+  <circle cx="1022" cy="950"  r="5"   fill="rgba(255,160,50,0.30)"/>
+  <circle cx="940"  cy="1200" r="3"   fill="rgba(180,130,255,0.40)"/>
+  <circle cx="130"  cy="1300" r="4"   fill="rgba(255,200,80,0.35)"/>
+  <!-- конфетти-прямоугольники -->
+  <rect x="68"   y="820"  width="9"  height="5"  rx="2" fill="rgba(255,150,60,0.50)"  transform="rotate(30  73 823)"/>
+  <rect x="1005" cy="780" width="8"  height="4"  rx="2" fill="rgba(150,90,255,0.45)"  transform="rotate(-25 1009 782)"/>
+  <rect x="42"   y="1180" width="10" height="4"  rx="2" fill="rgba(255,190,70,0.40)"  transform="rotate(15  47 1182)"/>
+  <rect x="1012" cy="1100" width="7" height="4"  rx="2" fill="rgba(120,70,240,0.38)"  transform="rotate(-40 1016 1102)"/>
+  <rect x="150"  y="1400" width="8"  height="4"  rx="2" fill="rgba(255,155,55,0.35)"  transform="rotate(20  154 1402)"/>
+  <rect x="920"  y="1350" width="9"  height="4"  rx="2" fill="rgba(160,100,255,0.38)" transform="rotate(-15 924 1352)"/>
+  <!-- мелкие крестики-звёзды -->
+  <text x="98"   y="940"  font-size="18" fill="rgba(255,170,60,0.45)" font-family="sans-serif">✦</text>
+  <text x="968"  y="860"  font-size="14" fill="rgba(150,90,255,0.40)" font-family="sans-serif">✦</text>
+  <text x="72"   y="1250" font-size="12" fill="rgba(255,190,70,0.38)" font-family="sans-serif">✦</text>
+  <text x="980"  y="1150" font-size="16" fill="rgba(130,75,240,0.35)" font-family="sans-serif">✦</text>
+</svg>
+
+<!-- TOP TEXT -->
+<div class="top">
+  <div class="brand">ReflexMe</div>
+  <div class="h1">Вечером —<br>проверяй</div>
+  <div class="sub">Оцени каждый прогноз.<br>Система становится точнее</div>
+</div>
+
+<!-- PHONE -->
+<div class="phone">
+  <div class="shell">
+    <div class="screen">
+      <div class="hole"></div>
+
+      <!-- Status bar -->
+      <div class="sbar">
+        <span>21:14</span>
+        <div class="sright">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+            <rect x="0"    y="6"   width="3"   height="6"    rx="1" fill="#111"/>
+            <rect x="4.5"  y="3.8" width="3"   height="8.2"  rx="1" fill="#111"/>
+            <rect x="9"    y="1.5" width="3"   height="10.5" rx="1" fill="#111"/>
+            <rect x="13.5" y="0"   width="2.5" height="12"   rx="1" fill="#111" opacity="0.2"/>
+          </svg>
+          <svg width="15" height="11" viewBox="0 0 15 11" fill="#111">
+            <path d="M7.5 8.2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/>
+            <path d="M3.7 5.6a5.4 5.4 0 0 1 7.6 0l-1.2 1.2a3.5 3.5 0 0 0-5.2 0L3.7 5.6z"/>
+            <path d="M.8 2.8A9.5 9.5 0 0 1 14.2 2.8L13 4A7.7 7.7 0 0 0 2 4L.8 2.8z"/>
+          </svg>
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none">
+            <rect x=".6" y=".6" width="19.8" height="10.8" rx="3.2" stroke="#111" stroke-width="1.1"/>
+            <rect x="2"  y="2"  width="14"   height="8"    rx="2"   fill="#111"/>
+            <path d="M21.4 4v4a2 2 0 0 0 0-4z" fill="#111"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- App UI -->
+      <div class="ui">
+
+        <div>
+          <div class="lbl-top">Итоги дня</div>
+          <div class="page-title">Как прошёл день?</div>
+          <div class="page-sub">Оцени каждый прогноз</div>
+        </div>
+
+        <!-- Card 1: rated, floating, "Да" pressed -->
+        <div class="card cb rated">
+          <div class="card-header">
+            <div class="card-icon ib">👁</div>
+            <div class="card-tag tb">Чего ожидать</div>
+          </div>
+          <div class="card-text">Сегодня тебя будет задевать чужой тон сильнее, чем обычно</div>
+          <div class="votes">
+            <div class="vbtn active-yes">Да</div>
+            <div class="vbtn recede">Частично</div>
+            <div class="vbtn recede">Мимо</div>
+          </div>
+        </div>
+
+        <!-- Card 2: "Частично" pressed -->
+        <div class="card cg">
+          <div class="card-header">
+            <div class="card-icon ig">⚡</div>
+            <div class="card-tag tg">Твоя сила</div>
+          </div>
+          <div class="card-text">Лучше всего сработаешь в одиночных задачах без объяснений</div>
+          <div class="votes">
+            <div class="vbtn recede">Да</div>
+            <div class="vbtn active-partial">Частично</div>
+            <div class="vbtn recede">Мимо</div>
+          </div>
+        </div>
+
+        <!-- Card 3: not rated -->
+        <div class="card co">
+          <div class="card-header">
+            <div class="card-icon io">⚠️</div>
+            <div class="card-tag to">Ловушка дня</div>
+          </div>
+          <div class="card-text">Не принимай утреннюю усталость за итог всего дня</div>
+          <div class="votes">
+            <div class="vbtn">Да</div>
+            <div class="vbtn">Частично</div>
+            <div class="vbtn">Мимо</div>
+          </div>
+        </div>
+
+        <!-- Context -->
+        <div class="section-plain">
+          <div class="section-title">Что оказалось главным?</div>
+          <div class="section-hint">Необязательно</div>
+          <div class="textarea-fake">Свободная мысль о дне…</div>
+        </div>
+
+      </div>
+
+      <!-- Nav -->
+      <div class="nav">
+        <div class="ni on">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M3 10L12 3l9 7v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9z" stroke="#0E0B06" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M9 21v-8h6v8" stroke="#0E0B06" stroke-width="1.8" stroke-linejoin="round"/>
+          </svg>
+          <span>Сегодня</span>
+        </div>
+        <div class="ni">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3"  y="12" width="4" height="9"  rx="1.2" stroke="rgba(0,0,0,0.28)" stroke-width="1.8"/>
+            <rect x="10" y="7"  width="4" height="14" rx="1.2" stroke="rgba(0,0,0,0.28)" stroke-width="1.8"/>
+            <rect x="17" y="3"  width="4" height="18" rx="1.2" stroke="rgba(0,0,0,0.28)" stroke-width="1.8"/>
+          </svg>
+          <span>Паттерны</span>
+        </div>
+        <div class="ni">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="2.8" stroke="rgba(0,0,0,0.28)" stroke-width="1.8"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="rgba(0,0,0,0.28)" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span>Настройки</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- TAGLINE -->
+<div class="tag">Каждый вечер — шаг к точному прогнозу.</div>
+
+</body>
+</html>

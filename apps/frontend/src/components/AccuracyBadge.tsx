@@ -18,7 +18,7 @@ export function AccuracyBadge({ totalReviews, accuracyPercent }: AccuracyBadgePr
         style={{ background: '#F5F5F5', color: '#AEAEB2' }}
         title={`Нужно ещё ${MIN_REVIEWS - totalReviews} оценок для расчёта точности`}
       >
-        <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: '#AEAEB2' }} />
+        <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full" style={{ background: '#AEAEB2' }} />
         Низкая точность
       </span>
     );
@@ -40,7 +40,7 @@ export function AccuracyBadge({ totalReviews, accuracyPercent }: AccuracyBadgePr
       style={{ background: bg, color }}
       aria-label={`Точность прогнозов: ${accuracyPercent}%`}
     >
-      <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: color }} />
+      <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full" style={{ background: color }} />
       Точность {accuracyPercent}%
     </span>
   );

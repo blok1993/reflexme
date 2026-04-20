@@ -6,3 +6,5 @@ dist/
 *.db-wal
 *.db-shm
 .DS_Store
+.claude/
+play-store-screenshots/

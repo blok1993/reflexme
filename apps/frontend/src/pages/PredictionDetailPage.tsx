@@ -261,7 +261,7 @@ export function PredictionDetailPage() {
                 </p>
                 <div className="flex flex-col gap-2">
                   {([
-                    { label: 'Что вероятно', score: review.likelyEventScore as ReviewScore },
+                    { label: 'Чего ожидать', score: review.likelyEventScore as ReviewScore },
                     { label: 'Твоя сила', score: review.strengthPointScore as ReviewScore },
                     { label: 'Ловушка дня', score: review.trapWarningScore as ReviewScore },
                   ]).map(({ label, score }) => (

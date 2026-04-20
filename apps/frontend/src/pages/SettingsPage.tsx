@@ -75,7 +75,7 @@ export function SettingsPage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Как тебя зовут?"
                 maxLength={40}
-                className="flex-1 px-4 py-3 rounded-xl text-sm"
+                className="flex-1 min-w-0 px-4 py-3 rounded-xl text-sm"
                 style={{
                   background: 'rgba(0,0,0,0.04)',
                   border: '1.5px solid transparent',

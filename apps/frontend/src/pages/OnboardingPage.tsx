@@ -187,7 +187,7 @@ function WelcomeStep() {
         className="text-base whitespace-pre-line"
         style={{ color: 'var(--color-text-secondary)' }}
       >
-        Не гороскоп. Не магия.{'\n'}Ты и есть источник данных.
+        Не гороскоп. Не магия.
       </motion.p>
     </div>
   );
@@ -203,9 +203,9 @@ function HowStep() {
       </h2>
       <div className="flex flex-col gap-6">
         {[
-          { emoji: '🌅', title: 'Утром', text: 'Твоё настроение и фокус дня — и пара слов, если хочется.' },
-          { emoji: '🔮', title: 'Три карточки', text: 'Прогноз на твой день — чего ожидать и в чём твоя сила сегодня.' },
-          { emoji: '🌙', title: 'Вечером — итоги дня', text: 'Зайди и отметь, как всё прошло. С каждым днём прогнозы всё точнее.' },
+          { emoji: '🌅', title: 'Утром', text: 'Пара слов о твоём настроении и планах на день.' },
+          { emoji: '🔮', title: 'Три карточки', text: 'Прогноз на твой день, твоя сила сегодня и на что обратить внимание.' },
+          { emoji: '🌙', title: 'Вечером — итоги дня', text: 'Зайди и отметь, как всё прошло.\nС каждым днём прогнозы становятся точнее.' },
         ].map((item, i) => (
           <motion.div
             key={item.title}
@@ -368,6 +368,9 @@ function SetupStep({
             background: 'rgba(0,0,0,0.04)',
             border: '1.5px solid transparent',
             color: birthDate ? 'var(--color-text)' : 'var(--color-text-tertiary)',
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
           }}
         />
       </div>

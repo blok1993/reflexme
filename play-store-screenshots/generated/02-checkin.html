@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>ReflexMe — Чек-ин</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1920px;
+    overflow: hidden;
+    background: #F5EFE6;
+    font-family: 'Inter', -apple-system, 'SF Pro Display', sans-serif;
+    position: relative;
+  }
+
+  /* ── BACKGROUND — рассветный градиент ── */
+  .bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 1000px 800px at 50% -100px, rgba(255,185,80,0.55) 0%, transparent 60%),
+      radial-gradient(ellipse 600px 500px at -5% 60%, rgba(255,140,80,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse 500px 600px at 108% 80%, rgba(255,200,120,0.14) 0%, transparent 50%),
+      radial-gradient(ellipse 800px 400px at 50% 100%, rgba(255,160,60,0.10) 0%, transparent 60%);
+  }
+  .orb { position: absolute; border-radius: 50%; filter: blur(100px); pointer-events: none; }
+  .o1 { width: 600px; height: 600px; background: rgba(255,170,50,0.22); top:-200px; left:-150px; }
+  .o2 { width: 400px; height: 400px; background: rgba(255,100,60,0.10); bottom:200px; right:-100px; }
+  .o3 { width: 300px; height: 300px; background: rgba(255,220,100,0.15); top:400px; right:-80px; }
+
+  /* floating dots */
+  .dots { position: absolute; inset: 0; pointer-events: none; }
+
+  /* ── TOP TEXT ── */
+  .top {
+    position: absolute;
+    top: 80px; left: 0; right: 0;
+    text-align: center;
+    padding: 0 80px;
+    z-index: 10;
+  }
+  .brand {
+    font-size: 24px; font-weight: 600;
+    letter-spacing: 10px; text-transform: uppercase;
+    color: rgba(90,50,10,0.35); margin-bottom: 28px;
+  }
+  .h1 {
+    font-size: 92px; font-weight: 800;
+    line-height: 1.04; letter-spacing: -3.5px;
+    color: #1A0E04; margin-bottom: 20px;
+  }
+  .sub {
+    font-size: 33px; font-weight: 400;
+    color: rgba(80,45,10,0.46); line-height: 1.45;
+  }
+
+  /* ── PHONE ── */
+  .phone {
+    position: absolute;
+    top: 600px;
+    left: 50%; transform: translateX(-50%);
+    width: 540px; height: 1130px;
+    z-index: 5;
+  }
+
+  .shell {
+    width: 100%; height: 100%;
+    background: #181818;
+    border-radius: 48px;
+    padding: 11px;
+    position: relative;
+    box-shadow:
+      inset 0 0 0 1.5px rgba(255,255,255,0.08),
+      0 40px 120px rgba(0,0,0,0.45),
+      0 14px 36px rgba(0,0,0,0.22);
+  }
+  .shell::before {
+    content: '';
+    position: absolute;
+    left: -4px; top: 150px;
+    width: 4px; height: 55px;
+    background: #252525; border-radius: 2px 0 0 2px;
+    box-shadow: 0 76px 0 #252525;
+  }
+  .shell::after {
+    content: '';
+    position: absolute;
+    right: -4px; top: 165px;
+    width: 4px; height: 80px;
+    background: #252525; border-radius: 0 2px 2px 0;
+  }
+
+  .screen {
+    width: 100%; height: 100%;
+    background: #F7F6F2;
+    border-radius: 38px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hole {
+    position: absolute;
+    top: 14px; left: 50%; transform: translateX(-50%);
+    width: 13px; height: 13px;
+    background: #181818; border-radius: 50%;
+    z-index: 20;
+  }
+
+  /* ── STATUS BAR ── */
+  .sbar {
+    flex-shrink: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 24px 0; height: 46px;
+    font-size: 14px; font-weight: 700; color: #111;
+  }
+  .sright { display: flex; align-items: center; gap: 5px; }
+
+  /* ── APP CONTENT ── */
+  .ui {
+    flex: 1;
+    padding: 10px 20px 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .greeting-date {
+    font-size: 13px; font-weight: 500;
+    color: rgba(0,0,0,0.36);
+    margin-bottom: 2px;
+  }
+  .greeting-name {
+    font-size: 28px; font-weight: 700;
+    color: #0E0B06; letter-spacing: -0.5px;
+  }
+
+  /* ── SECTION CARD ── */
+  .section {
+    background: #fff;
+    border-radius: 18px;
+    padding: 14px 16px;
+  }
+  .section-title {
+    font-size: 14px; font-weight: 600;
+    color: #0E0B06; margin-bottom: 10px;
+  }
+
+  /* ── MOOD ROW ── */
+  .mood-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 2px;
+  }
+  .mood-item {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    flex: 1;
+  }
+  .mood-emoji-wrap {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0,0,0,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    background: #fff;
+    transition: all 0.2s;
+  }
+  .mood-label {
+    font-size: 11px; font-weight: 500;
+    color: rgba(0,0,0,0.35);
+  }
+
+  /* "Хорошо" — выбранный, парит с тёплым свечением */
+  .mood-item.selected .mood-emoji-wrap {
+    border: 2px solid #52AE80;
+    background: rgba(82,174,128,0.08);
+    transform: translateY(-6px) scale(1.12);
+    box-shadow:
+      0 8px 24px rgba(82,174,128,0.38),
+      0 2px 8px rgba(82,174,128,0.22),
+      0 0 0 4px rgba(82,174,128,0.10);
+  }
+  .mood-item.selected .mood-label {
+    color: #3a9068;
+    font-weight: 700;
+    transform: translateY(-4px);
+  }
+
+  /* ── FOCUS GRID ── */
+  .focus-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .focus-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    padding: 10px 8px;
+    background: #F4F3EF;
+    border-radius: 13px;
+    font-size: 12px; font-weight: 500; color: rgba(0,0,0,0.55);
+    border: 1.5px solid transparent;
+  }
+  .focus-btn .fi { font-size: 20px; }
+
+  /* "Работа" — 3D-вдавливание, тёмный акцент */
+  .focus-btn.pressed {
+    background: #1A1208;
+    color: rgba(255,255,255,0.9);
+    border-color: #1A1208;
+    box-shadow:
+      inset 0 2px 6px rgba(0,0,0,0.55),
+      inset 0 1px 2px rgba(0,0,0,0.35),
+      0 1px 0 rgba(255,255,255,0.06);
+    transform: translateY(1px);
+  }
+
+  /* ── CONTEXT SECTION ── */
+  .context-hint {
+    font-size: 11px; color: rgba(0,0,0,0.3); margin-bottom: 8px;
+  }
+  .context-input {
+    background: #F0EFEb;
+    border-radius: 11px;
+    padding: 10px 12px;
+    font-size: 13px; line-height: 1.5;
+    color: #252018;
+    min-height: 52px;
+  }
+
+  /* ── BOTTOM BUTTON — пульс + свечение ── */
+  .cta-wrap {
+    flex-shrink: 0;
+    padding: 10px 20px 14px;
+    position: relative;
+  }
+  .cta {
+    width: 100%;
+    padding: 17px;
+    background: #1A1208;
+    border-radius: 16px;
+    font-size: 17px; font-weight: 700;
+    color: #fff; text-align: center;
+    position: relative;
+    box-shadow:
+      0 4px 20px rgba(255,170,60,0.35),
+      0 2px 8px rgba(0,0,0,0.25),
+      0 0 0 0 rgba(255,170,60,0.4);
+    animation: pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%   { box-shadow: 0 4px 20px rgba(255,170,60,0.35), 0 2px 8px rgba(0,0,0,0.25), 0 0 0 0   rgba(255,170,60,0.4); }
+    50%  { box-shadow: 0 4px 28px rgba(255,170,60,0.50), 0 2px 8px rgba(0,0,0,0.25), 0 0 0 10px rgba(255,170,60,0); }
+    100% { box-shadow: 0 4px 20px rgba(255,170,60,0.35), 0 2px 8px rgba(0,0,0,0.25), 0 0 0 0   rgba(255,170,60,0.4); }
+  }
+
+  /* ── NAV ── */
+  .nav {
+    flex-shrink: 0;
+    border-top: 1px solid rgba(0,0,0,0.07);
+    background: rgba(247,246,242,0.97);
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 10px 0 16px;
+  }
+  .ni {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font-size: 11.5px; font-weight: 500; color: rgba(0,0,0,0.28);
+  }
+  .ni.on { color: #0E0B06; }
+
+  /* ── TAGLINE ── */
+  .tag {
+    position: absolute;
+    bottom: 50px; left: 0; right: 0;
+    text-align: center; z-index: 10;
+    font-size: 28px; font-weight: 500;
+    color: rgba(90,50,10,0.34);
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="orb o1"></div>
+<div class="orb o2"></div>
+<div class="orb o3"></div>
+
+<svg class="dots" viewBox="0 0 1080 1920">
+  <circle cx="72"   cy="320" r="4"   fill="rgba(255,160,50,0.45)"/>
+  <circle cx="1008" cy="260" r="3"   fill="rgba(255,120,60,0.30)"/>
+  <circle cx="48"   cy="840" r="3.5" fill="rgba(255,200,80,0.28)"/>
+  <circle cx="1022" cy="700" r="5"   fill="rgba(255,155,45,0.22)"/>
+  <circle cx="850"  cy="480" r="2.5" fill="rgba(255,180,70,0.35)"/>
+  <circle cx="140"  cy="1100" r="3"  fill="rgba(255,140,55,0.20)"/>
+</svg>
+
+<!-- TOP TEXT -->
+<div class="top">
+  <div class="brand">ReflexMe</div>
+  <div class="h1">30 секунд<br>утром</div>
+  <div class="sub">Настроение. Фокус. Контекст —<br>и прогноз готов</div>
+</div>
+
+<!-- PHONE -->
+<div class="phone">
+  <div class="shell">
+    <div class="screen">
+      <div class="hole"></div>
+
+      <!-- Status bar -->
+      <div class="sbar">
+        <span>9:41</span>
+        <div class="sright">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+            <rect x="0"    y="6"   width="3"   height="6"    rx="1" fill="#111"/>
+            <rect x="4.5"  y="3.8" width="3"   height="8.2"  rx="1" fill="#111"/>
+            <rect x="9"    y="1.5" width="3"   height="10.5" rx="1" fill="#111"/>
+            <rect x="13.5" y="0"   width="2.5" height="12"   rx="1" fill="#111" opacity="0.2"/>
+          </svg>
+          <svg width="15" height="11" viewBox="0 0 15 11" fill="#111">
+            <path d="M7.5 8.2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"/>
+            <path d="M3.7 5.6a5.4 5.4 0 0 1 7.6 0l-1.2 1.2a3.5 3.5 0 0 0-5.2 0L3.7 5.6z"/>
+            <path d="M.8 2.8A9.5 9.5 0 0 1 14.2 2.8L13 4A7.7 7.7 0 0 0 2 4L.8 2.8z"/>
+          </svg>
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none">
+            <rect x=".6" y=".6" width="19.8" height="10.8" rx="3.2" stroke="#111" stroke-width="1.1"/>
+            <rect x="2"  y="2"  width="14"   height="8"    rx="2"   fill="#111"/>
+            <path d="M21.4 4v4a2 2 0 0 0 0-4z" fill="#111"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- App UI -->
+      <div class="ui">
+
+        <!-- Greeting -->
+        <div>
+          <div class="greeting-date">Понедельник, 20 Апреля</div>
+          <div class="greeting-name">Доброе утро, Алекс</div>
+        </div>
+
+        <!-- Mood -->
+        <div class="section">
+          <div class="section-title">Как ты сейчас?</div>
+          <div class="mood-row">
+            <div class="mood-item">
+              <div class="mood-emoji-wrap">😔</div>
+              <div class="mood-label">Тяжело</div>
+            </div>
+            <div class="mood-item">
+              <div class="mood-emoji-wrap">😐</div>
+              <div class="mood-label">Непросто</div>
+            </div>
+            <div class="mood-item">
+              <div class="mood-emoji-wrap">🙂</div>
+              <div class="mood-label">Нейтрально</div>
+            </div>
+            <div class="mood-item selected">
+              <div class="mood-emoji-wrap">😊</div>
+              <div class="mood-label">Хорошо</div>
+            </div>
+            <div class="mood-item">
+              <div class="mood-emoji-wrap">😄</div>
+              <div class="mood-label">Отлично</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Focus -->
+        <div class="section">
+          <div class="section-title">Что сегодня важно для тебя?</div>
+          <div class="focus-grid">
+            <div class="focus-btn"><span class="fi">👥</span>Люди</div>
+            <div class="focus-btn"><span class="fi">🌀</span>Напряжение</div>
+            <div class="focus-btn"><span class="fi">🧘</span>Фокус на себе</div>
+            <div class="focus-btn"><span class="fi">🎯</span>Контроль</div>
+            <div class="focus-btn pressed"><span class="fi">💼</span>Работа</div>
+            <div class="focus-btn"><span class="fi">💬</span>Эмоции</div>
+            <div class="focus-btn"><span class="fi">⚡</span>Энергия</div>
+            <div class="focus-btn"><span class="fi">🌿</span>Отдых</div>
+          </div>
+        </div>
+
+        <!-- Context -->
+        <div class="section">
+          <div class="section-title">Что важно для тебя прямо сейчас?</div>
+          <div class="context-hint">Одно-два предложения — и прогноз станет про тебя</div>
+          <div class="context-input">Важная встреча днём, немного не выспался.</div>
+        </div>
+
+      </div>
+
+      <!-- CTA button -->
+      <div class="cta-wrap">
+        <div class="cta">Получить прогноз →</div>
+      </div>
+
+      <!-- Nav -->
+      <div class="nav">
+        <div class="ni on">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M3 10L12 3l9 7v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9z" stroke="#0E0B06" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M9 21v-8h6v8" stroke="#0E0B06" stroke-width="1.8" stroke-linejoin="round"/>
+          </svg>
+          <span>Сегодня</span>
+        </div>
+        <div class="ni">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3"  y="12" width="4" height="9"  rx="1.2" stroke="rgba(0,0,0,0.28)" stroke-width="1.8"/>
+            <rect x="10" y="7"  width="4" height="14" rx="1.2" stroke="rgba(0,0,0,0.28)" stroke-width="1.8"/>
+            <rect x="17" y="3"  width="4" height="18" rx="1.2" stroke="rgba(0,0,0,0.28)" stroke-width="1.8"/>
+          </svg>
+          <span>Паттерны</span>
+        </div>
+        <div class="ni">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="2.8" stroke="rgba(0,0,0,0.28)" stroke-width="1.8"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="rgba(0,0,0,0.28)" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span>Настройки</span>
+        </div>
+      </div>
+
+    </div><!-- /screen -->
+  </div><!-- /shell -->
+</div><!-- /phone -->
+
+<!-- TAGLINE -->
+<div class="tag">30 секунд — и день уже понятен.</div>
+
+</body>
+</html>

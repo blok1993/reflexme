@@ -3,7 +3,7 @@ export type MoodValue = 1 | 2 | 3 | 4 | 5;
 export const MOOD_OPTIONS = [
   { value: 1 as MoodValue, emoji: '😔', label: 'Тяжело' },
   { value: 2 as MoodValue, emoji: '😕', label: 'Непросто' },
-  { value: 3 as MoodValue, emoji: '😐', label: 'Нейтрально' },
+  { value: 3 as MoodValue, emoji: '😐', label: 'Никак' },
   { value: 4 as MoodValue, emoji: '🙂', label: 'Хорошо' },
   { value: 5 as MoodValue, emoji: '😊', label: 'Отлично' },
 ] as const;
