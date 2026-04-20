@@ -118,9 +118,6 @@ export function SettingsPage() {
                   background: 'rgba(0,0,0,0.04)',
                   border: '1.5px solid transparent',
                   color: displayBirthDate ? 'var(--color-text)' : 'var(--color-text-tertiary)',
-                  width: '100%',
-                  maxWidth: '100%',
-                  boxSizing: 'border-box',
                 }}
               />
               <button

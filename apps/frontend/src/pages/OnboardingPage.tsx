@@ -368,9 +368,6 @@ function SetupStep({
             background: 'rgba(0,0,0,0.04)',
             border: '1.5px solid transparent',
             color: birthDate ? 'var(--color-text)' : 'var(--color-text-tertiary)',
-            width: '100%',
-            maxWidth: '100%',
-            boxSizing: 'border-box',
           }}
         />
       </div>
