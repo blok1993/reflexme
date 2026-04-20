@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { PredictionCard } from '../components/PredictionCard';
@@ -8,10 +8,13 @@ import { useGeneratePrediction, usePrediction, useDailyStatus, useAccuracyCurve 
 import { getTodayISO, isEvening, timeUntilEvening } from '../lib/date';
 import toast from 'react-hot-toast';
 
+// Persists across navigations for the lifetime of the tab —
+// prevents firing generate more than once per date per session.
+const generatedDates = new Set<string>();
+
 export function PredictionPage() {
   const navigate = useNavigate();
   const today = getTodayISO();
-  const generateFired = useRef(false);
 
   const { data: statusData, isLoading: statusLoading, isFetching: statusFetching } = useDailyStatus(today);
   const { data: predData, isLoading: predLoading } = usePrediction(today);
@@ -30,13 +33,12 @@ export function PredictionPage() {
 
     if (statusData.status === 'review_completed') return;
 
-    // Fire generate only once per mount
     if (
       statusData.checkinId &&
       !statusData.predictionExists &&
-      !generateFired.current
+      !generatedDates.has(today)
     ) {
-      generateFired.current = true;
+      generatedDates.add(today);
       generate.mutate(statusData.checkinId);
     }
   }, [statusData, statusFetching, navigate, generate]);
@@ -51,7 +53,7 @@ export function PredictionPage() {
     !statusData?.predictionExists &&
     !predData?.prediction &&
     !generate.isError &&
-    !generateFired.current;
+    !generatedDates.has(today);
   const generatedButNotLoaded = generate.isSuccess && !predData?.prediction;
 
   if (

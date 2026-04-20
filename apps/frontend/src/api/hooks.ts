@@ -42,9 +42,12 @@ export function useDailyStatus(date?: string) {
     queryKey: keys.dailyStatus(d),
     queryFn: () => api.getDailyStatus(d),
     retry: 1,
-    // Status changes only after user actions (checkin / generate / review).
-    // Mutations invalidate this key explicitly, so 60s stale is safe.
-    staleTime: 60_000,
+    // Once prediction exists the status won't change until evening review —
+    // keep it fresh for 5 min normally, or forever if prediction is already there.
+    staleTime: (query) => {
+      const data = query.state.data as { predictionExists?: boolean } | undefined;
+      return data?.predictionExists ? Infinity : 5 * 60 * 1000;
+    },
   });
 }
 

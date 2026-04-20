@@ -90,7 +90,7 @@ app.use(
   '/api/',
   rateLimit({
     windowMs: 60 * 1000,
-    max: 120,
+    max: 500,
     standardHeaders: true,
     legacyHeaders: false,
     message: RL_MESSAGE('RATE_LIMITED', 'Too many requests'),
@@ -103,7 +103,7 @@ app.use(
   '/api/v1/checkins',
   rateLimit({
     windowMs: 24 * 60 * 60 * 1000,
-    max: 5,
+    max: 15,
     keyGenerator: deviceKey,
     skip: skipInTests,
     standardHeaders: true,
@@ -118,7 +118,7 @@ app.use(
   '/api/v1/predictions/generate',
   rateLimit({
     windowMs: 24 * 60 * 60 * 1000,
-    max: 3,
+    max: 50,
     keyGenerator: deviceKey,
     skip: skipInTests,
     standardHeaders: true,
