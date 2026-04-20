@@ -88,7 +88,7 @@ export function PredictionPage() {
         {canRetry && (
           <motion.button
             onClick={() => {
-              generateFired.current = false;
+              generatedDates.delete(today);
               generate.reset();
             }}
             whileTap={{ scale: 0.97 }}
