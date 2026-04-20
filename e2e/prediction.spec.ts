@@ -39,8 +39,8 @@ test.describe('Prediction Page', () => {
     await expect(page.locator('[data-testid="prediction-page"]')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('[data-testid="day-type"]')).toBeVisible({ timeout: 3000 });
 
-    // AccuracyBadge: with no accuracy-curve data or < 7 reviews → "Точность копится"
-    await expect(page.getByText('Точность копится', { exact: true })).toBeVisible({ timeout: 3000 });
+    // AccuracyBadge: with no accuracy-curve data or < 7 reviews → "Низкая точность"
+    await expect(page.getByText('Низкая точность', { exact: true })).toBeVisible({ timeout: 3000 });
   });
 
   test('shows "come back tonight" note in the morning', async ({ page }) => {

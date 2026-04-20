@@ -131,7 +131,7 @@ export async function setupMocks(page: Page, config: MockConfig = {}) {
 
   // GET /api/v1/insights/accuracy-curve
   await page.route('**/api/v1/insights/accuracy-curve**', async (route: Route) => {
-    // Return empty data — AccuracyBadge shows "Точность копится" with < 7 reviews
+    // Return empty data — AccuracyBadge shows "Низкая точность" with < 7 reviews
     await route.fulfill(ok({ points: [], trend: 'insufficient_data', totalReviews: 0 }));
   });
 

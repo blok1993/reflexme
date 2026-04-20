@@ -19,7 +19,7 @@ export function AccuracyBadge({ totalReviews, accuracyPercent }: AccuracyBadgePr
         title={`Нужно ещё ${MIN_REVIEWS - totalReviews} оценок для расчёта точности`}
       >
         <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: '#AEAEB2' }} />
-        Точность копится
+        Низкая точность
       </span>
     );
   }
