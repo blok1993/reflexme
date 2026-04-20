@@ -363,7 +363,7 @@ function SetupStep({
           max={today}
           min="1920-01-01"
           data-testid="birthday-input"
-          className="w-full px-4 py-3 rounded-xl text-base"
+          className="w-full h-12 px-4 rounded-xl text-base"
           style={{
             background: 'rgba(0,0,0,0.04)',
             border: '1.5px solid transparent',
