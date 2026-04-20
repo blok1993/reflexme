@@ -36,7 +36,7 @@ export function AccuracyBadge({ totalReviews, accuracyPercent }: AccuracyBadgePr
 
   return (
     <span
-      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium"
+      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap"
       style={{ background: bg, color }}
       aria-label={`Точность прогнозов: ${accuracyPercent}%`}
     >
