@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useUser, useUpdateUser, useUpdateSettings } from '../api/hooks';
 import type { PreferredTone } from '@predictor/contracts';
 import toast from 'react-hot-toast';
+import { getTodayISO } from '../lib/date';
 
 const TONE_LABELS: Record<PreferredTone, { label: string; description: string }> = {
   gentle: { label: 'Мягко', description: 'Поддерживающий тон' },
@@ -18,15 +19,23 @@ export function SettingsPage() {
   const user = userData?.user;
 
   const [name, setName] = useState('');
+  const [birthDate, setBirthDate] = useState<string | null>(null);
   // Optimistic tone: null = use server value; non-null = pending mutation value.
   // This avoids the flash where local state starts as 'neutral' before useEffect fires.
   const [optimisticTone, setOptimisticTone] = useState<PreferredTone | null>(null);
   const displayTone: PreferredTone = optimisticTone ?? user?.preferredTone ?? 'neutral';
   const displayName = name !== '' ? name : (user?.name ?? '');
+  const displayBirthDate = birthDate !== null ? birthDate : (user?.birthDate ?? '');
 
   async function handleSaveName() {
     if (!user) return;
     await updateUser.mutateAsync({ name: name.trim() || undefined });
+    toast.success('Сохранено');
+  }
+
+  async function handleSaveBirthDate() {
+    if (!user) return;
+    await updateUser.mutateAsync({ birthDate: displayBirthDate || null });
     toast.success('Сохранено');
   }
 
@@ -84,6 +93,38 @@ export function SettingsPage() {
               />
               <button
                 onClick={handleSaveName}
+                disabled={updateUser.isPending}
+                className="px-4 py-3 rounded-xl text-sm font-medium tap-scale"
+                style={{ background: 'var(--color-text)', color: '#FFFFFF' }}
+              >
+                Сохранить
+              </button>
+            </div>
+          </section>
+
+          <section className="card">
+            <p className="text-sm font-semibold mb-3" style={{ color: 'var(--color-text)' }}>
+              Дата рождения
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="date"
+                value={displayBirthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+                max={getTodayISO()}
+                min="1920-01-01"
+                className="flex-1 min-w-0 px-4 py-3 rounded-xl"
+                style={{
+                  background: 'rgba(0,0,0,0.04)',
+                  border: '1.5px solid transparent',
+                  color: displayBirthDate ? 'var(--color-text)' : 'var(--color-text-tertiary)',
+                  width: '100%',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <button
+                onClick={handleSaveBirthDate}
                 disabled={updateUser.isPending}
                 className="px-4 py-3 rounded-xl text-sm font-medium tap-scale"
                 style={{ background: 'var(--color-text)', color: '#FFFFFF' }}

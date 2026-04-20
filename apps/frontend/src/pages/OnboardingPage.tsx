@@ -75,7 +75,7 @@ export function OnboardingPage() {
   return (
     <div
       data-testid="onboarding-page"
-      className="min-h-dvh flex flex-col"
+      className="min-h-dvh flex flex-col overflow-x-hidden"
       style={{ background: 'var(--color-mood-bg)', maxWidth: 430, margin: '0 auto' }}
     >
       <div className="flex-1 flex flex-col px-6 pt-16 pb-8">
@@ -224,7 +224,7 @@ function HowStep() {
               <p className="font-semibold text-base mb-0.5" style={{ color: 'var(--color-text)' }}>
                 {item.title}
               </p>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+              <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: 'var(--color-text-secondary)' }}>
                 {item.text}
               </p>
             </div>
@@ -252,7 +252,7 @@ function SetupStep({
   const today = getTodayISO();
 
   return (
-    <div className="flex flex-col flex-1 gap-5 overflow-y-auto pb-2">
+    <div className="flex flex-col flex-1 min-w-0 gap-5 overflow-y-auto pb-2">
       <h2 className="text-2xl font-bold" style={{ color: 'var(--color-text)' }}>
         Немного о тебе
       </h2>

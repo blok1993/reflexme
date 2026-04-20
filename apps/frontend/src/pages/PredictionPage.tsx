@@ -120,11 +120,11 @@ export function PredictionPage() {
       ``,
       `«${prediction.dayType}»`,
       ``,
-      `Чего ожидать: ${prediction.likelyEvent}`,
-      `Сила: ${prediction.strengthPoint}`,
-      `Ловушка: ${prediction.trapWarning}`,
+      `👁 Чего ожидать: ${prediction.likelyEvent}`,
+      `⚡ Моя сила: ${prediction.strengthPoint}`,
+      `⚠️ Ловушка дня: ${prediction.trapWarning}`,
       ``,
-      `Попробуй сам → https://www.reflexme.ru`,
+      `https://www.reflexme.ru`,
     ].join('\n');
     if (navigator.share) {
       try {

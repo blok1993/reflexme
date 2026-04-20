@@ -153,7 +153,7 @@ body {
 }
 /* Prevent Safari auto-zoom (triggers when font-size < 16px) */
 input, textarea, select {
-  font-size: 16px;
+  font-size: 16px !important;
 }
 textarea:focus, input:focus {
   outline: none;
