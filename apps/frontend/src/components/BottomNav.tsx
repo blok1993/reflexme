@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useDailyStatus } from '../api/hooks';
 import { getTodayISO, isEvening } from '../lib/date';
 
@@ -65,9 +65,14 @@ function SettingsIcon({ active }: { active: boolean }) {
   );
 }
 
+const TODAY_ROUTES = ['/checkin', '/prediction', '/review'];
+
 export function BottomNav() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { data: status } = useDailyStatus(getTodayISO());
+
+  const isTodayActive = TODAY_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'));
 
   function handleTodayTap() {
     if (!status) { navigate('/checkin'); return; }
@@ -83,8 +88,13 @@ export function BottomNav() {
           onClick={handleTodayTap}
           className="flex flex-col items-center gap-1 py-1 px-4 tap-scale"
         >
-          <TodayIcon active={false} />
-          <span className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>Сегодня</span>
+          <TodayIcon active={isTodayActive} />
+          <span
+            className={`text-xs ${isTodayActive ? 'font-semibold' : ''}`}
+            style={{ color: isTodayActive ? 'var(--color-accent)' : 'var(--color-text-tertiary)' }}
+          >
+            Сегодня
+          </span>
         </button>
 
         <NavLink

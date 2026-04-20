@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useUser, useUpdateUser, useUpdateSettings } from '../api/hooks';
 import type { PreferredTone } from '@predictor/contracts';
@@ -18,14 +18,11 @@ export function SettingsPage() {
   const user = userData?.user;
 
   const [name, setName] = useState('');
-  const [tone, setTone] = useState<PreferredTone>('neutral');
-
-  useEffect(() => {
-    if (user) {
-      setName(user.name ?? '');
-      setTone(user.preferredTone);
-    }
-  }, [user]);
+  // Optimistic tone: null = use server value; non-null = pending mutation value.
+  // This avoids the flash where local state starts as 'neutral' before useEffect fires.
+  const [optimisticTone, setOptimisticTone] = useState<PreferredTone | null>(null);
+  const displayTone: PreferredTone = optimisticTone ?? user?.preferredTone ?? 'neutral';
+  const displayName = name !== '' ? name : (user?.name ?? '');
 
   async function handleSaveName() {
     if (!user) return;
@@ -34,9 +31,14 @@ export function SettingsPage() {
   }
 
   async function handleToneChange(newTone: PreferredTone) {
-    setTone(newTone);
-    await updateSettings.mutateAsync({ preferredTone: newTone });
-    toast.success('Тон изменён');
+    setOptimisticTone(newTone);
+    try {
+      await updateSettings.mutateAsync({ preferredTone: newTone });
+      toast.success('Тон изменён');
+    } finally {
+      // Clear optimistic override — server value (via React Query cache) now correct.
+      setOptimisticTone(null);
+    }
   }
 
   if (isLoading) {
@@ -69,7 +71,7 @@ export function SettingsPage() {
             <div className="flex gap-2">
               <input
                 type="text"
-                value={name}
+                value={displayName}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Как тебя зовут?"
                 maxLength={40}
@@ -98,7 +100,7 @@ export function SettingsPage() {
             <div className="flex flex-col gap-2">
               {(Object.entries(TONE_LABELS) as [PreferredTone, { label: string; description: string }][]).map(
                 ([value, { label, description }]) => {
-                  const isSelected = tone === value;
+                  const isSelected = displayTone === value;
                   return (
                     <motion.button
                       key={value}

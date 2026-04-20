@@ -5,7 +5,7 @@ export type CardType = 'likelyEvent' | 'strengthPoint' | 'trapWarning';
 
 const CARD_CONFIG = {
   likelyEvent: {
-    title: 'Что вероятно',
+    title: 'Чего ожидать',
     icon: '👁',
     borderColor: '#5B6FD4',
     iconBg: '#EEF0FF',

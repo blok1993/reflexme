@@ -2,9 +2,9 @@ import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { PredictionCard } from '../components/PredictionCard';
-import { ConfidenceBadge } from '../components/ConfidenceBadge';
+import { AccuracyBadge } from '../components/AccuracyBadge';
 import { LoadingScreen } from '../components/LoadingScreen';
-import { useGeneratePrediction, usePrediction, useDailyStatus } from '../api/hooks';
+import { useGeneratePrediction, usePrediction, useDailyStatus, useAccuracyCurve } from '../api/hooks';
 import { getTodayISO, isEvening, timeUntilEvening } from '../lib/date';
 import toast from 'react-hot-toast';
 
@@ -15,6 +15,7 @@ export function PredictionPage() {
 
   const { data: statusData, isLoading: statusLoading, isFetching: statusFetching } = useDailyStatus(today);
   const { data: predData, isLoading: predLoading } = usePrediction(today);
+  const { data: curveData } = useAccuracyCurve();
   const generate = useGeneratePrediction();
 
   useEffect(() => {
@@ -114,7 +115,17 @@ export function PredictionPage() {
 
   async function handleShare() {
     if (!prediction) return;
-    const text = `🔮 Мой прогноз на сегодня\n\n${prediction.dayType}\n\nЧто вероятно: ${prediction.likelyEvent}\n\nСила: ${prediction.strengthPoint}\n\nЛовушка: ${prediction.trapWarning}\n\n— ReflexMe`;
+    const text = [
+      `😱 Смотри, что мне предсказал на день ReflexMe:`,
+      ``,
+      `«${prediction.dayType}»`,
+      ``,
+      `Чего ожидать: ${prediction.likelyEvent}`,
+      `Сила: ${prediction.strengthPoint}`,
+      `Ловушка: ${prediction.trapWarning}`,
+      ``,
+      `Попробуй сам → https://www.reflexme.ru`,
+    ].join('\n');
     if (navigator.share) {
       try {
         await navigator.share({ text });
@@ -158,7 +169,14 @@ export function PredictionPage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <ConfidenceBadge confidence={prediction.confidence} />
+            <AccuracyBadge
+              totalReviews={curveData?.totalReviews ?? 0}
+              accuracyPercent={
+                curveData && curveData.points.length > 0
+                  ? Math.round(curveData.points[curveData.points.length - 1].accuracy * 100)
+                  : null
+              }
+            />
           </motion.div>
         </div>
 
@@ -182,7 +200,7 @@ export function PredictionPage() {
               className="w-full py-4 rounded-2xl text-base font-semibold"
               style={{ background: 'var(--color-text)', color: '#FFFFFF' }}
             >
-              Проверить прогноз 🌙
+              Итоги дня 🌙
             </motion.button>
           )}
 
@@ -201,7 +219,7 @@ export function PredictionPage() {
               className="card text-sm text-center leading-relaxed"
               style={{ color: 'var(--color-text-secondary)' }}
             >
-              Возвращайся вечером — оценим прогноз вместе
+              Вечером подведём итоги дня
               {timeUntilEvening() && (
                 <span className="block text-xs mt-0.5" style={{ color: 'var(--color-text-tertiary)' }}>
                   {timeUntilEvening()}
@@ -213,14 +231,19 @@ export function PredictionPage() {
           <button
             onClick={handleShare}
             data-testid="share-btn"
-            className="w-full py-3 rounded-2xl text-sm font-medium tap-scale"
+            className="w-full py-3 rounded-2xl text-sm font-medium tap-scale flex items-center justify-center gap-2"
             style={{
               background: 'rgba(0,0,0,0.04)',
               color: 'var(--color-text-secondary)',
               border: 'none',
             }}
           >
-            Поделиться прогнозом
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+              <polyline points="16 6 12 2 8 6" />
+              <line x1="12" y1="2" x2="12" y2="15" />
+            </svg>
+            Отправить другу
           </button>
         </motion.div>
       </motion.div>

@@ -178,7 +178,7 @@ function WelcomeStep() {
         className="text-xl font-medium leading-snug mb-3 whitespace-pre-line"
         style={{ color: 'var(--color-text)' }}
       >
-        Утром — прогноз.{'\n'}Вечером — проверка.
+        Утром — прогноз.{'\n'}Вечером — итоги дня.
       </motion.p>
       <motion.p
         initial={{ opacity: 0, y: 10 }}
@@ -187,7 +187,7 @@ function WelcomeStep() {
         className="text-base whitespace-pre-line"
         style={{ color: 'var(--color-text-secondary)' }}
       >
-        Не гороскоп. Не магия.{'\n'}Что-то точнее.
+        Не гороскоп. Не магия.{'\n'}Ты и есть источник данных.
       </motion.p>
     </div>
   );
@@ -203,9 +203,9 @@ function HowStep() {
       </h2>
       <div className="flex flex-col gap-6">
         {[
-          { emoji: '🌅', title: 'Утром', text: 'Настроение + планы + пара слов. 30 секунд.' },
-          { emoji: '🔮', title: 'Три карточки', text: 'Вероятный прогноз. Твоя сила. Ловушка дня.' },
-          { emoji: '🌙', title: 'Вечером', text: 'Проверяешь, сбылось или нет. Приложение учится на тебе.' },
+          { emoji: '🌅', title: 'Утром', text: 'Твоё настроение и фокус дня — и пара слов, если хочется.' },
+          { emoji: '🔮', title: 'Три карточки', text: 'Прогноз на твой день — чего ожидать и в чём твоя сила сегодня.' },
+          { emoji: '🌙', title: 'Вечером — итоги дня', text: 'Зайди и отметь, как всё прошло. С каждым днём прогнозы всё точнее.' },
         ].map((item, i) => (
           <motion.div
             key={item.title}

@@ -129,6 +129,22 @@ export async function setupMocks(page: Page, config: MockConfig = {}) {
     await route.fulfill(ok(WEEKLY_INSIGHTS));
   });
 
+  // GET /api/v1/insights/accuracy-curve
+  await page.route('**/api/v1/insights/accuracy-curve**', async (route: Route) => {
+    // Return empty data — AccuracyBadge shows "Точность копится" with < 7 reviews
+    await route.fulfill(ok({ points: [], trend: 'insufficient_data', totalReviews: 0 }));
+  });
+
+  // GET /api/v1/insights/vocabulary
+  await page.route('**/api/v1/insights/vocabulary**', async (route: Route) => {
+    await route.fulfill(ok({ words: [], totalCheckins: 0, analyzedCheckins: 0, hasEnoughData: false }));
+  });
+
+  // GET /api/v1/insights/patterns
+  await page.route('**/api/v1/insights/patterns**', async (route: Route) => {
+    await route.fulfill(ok({ cards: [], generatedAt: null, totalReviews: 0, hasEnoughData: false, minimumRequired: 7 }));
+  });
+
   // GET /api/v1/history
   await page.route('**/api/v1/history**', async (route: Route) => {
     await route.fulfill(ok(HISTORY));

@@ -31,7 +31,7 @@ test.describe('Prediction Page', () => {
     await expect(page.getByText('Не принимай утреннюю усталость')).toBeVisible();
   });
 
-  test('shows confidence badge', async ({ page }) => {
+  test('shows accuracy badge', async ({ page }) => {
     await setupMocks(page, { user: 'onboarded', dailyStatus: 'prediction_ready' });
     await page.goto('/prediction');
 
@@ -39,8 +39,8 @@ test.describe('Prediction Page', () => {
     await expect(page.locator('[data-testid="prediction-page"]')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('[data-testid="day-type"]')).toBeVisible({ timeout: 3000 });
 
-    // confidence = 'medium' → "Вероятно"
-    await expect(page.getByText('Вероятно', { exact: true })).toBeVisible({ timeout: 3000 });
+    // AccuracyBadge: with no accuracy-curve data or < 7 reviews → "Точность копится"
+    await expect(page.getByText('Точность копится', { exact: true })).toBeVisible({ timeout: 3000 });
   });
 
   test('shows "come back tonight" note in the morning', async ({ page }) => {
@@ -66,7 +66,7 @@ test.describe('Prediction Page', () => {
     await page.goto('/prediction');
 
     await expect(page.locator('[data-testid="prediction-page"]')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByText(/Возвращайся вечером/)).toBeVisible({ timeout: 3000 });
+    await expect(page.getByText(/Вечером подведём итоги дня/)).toBeVisible({ timeout: 3000 });
     await expect(page.locator('[data-testid="go-to-review-btn"]')).not.toBeVisible();
   });
 

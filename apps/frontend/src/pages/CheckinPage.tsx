@@ -23,6 +23,7 @@ export function CheckinPage() {
   const [mood, setMood] = useState<MoodValue | null>(null);
   const [focus, setFocus] = useState<FocusArea | null>(null);
   const [contextText, setContextText] = useState('');
+  const [contextFocused, setContextFocused] = useState(false);
 
   // If checkin already exists today, skip to prediction
   useEffect(() => {
@@ -116,30 +117,33 @@ export function CheckinPage() {
 
           <section className="card" data-testid="focus-section">
             <p className="text-base font-semibold mb-3" style={{ color: 'var(--color-text)' }}>
-              Что сегодня в фокусе?
+              Что сегодня важно для тебя?
             </p>
             <FocusSelector value={focus} onChange={setFocus} />
           </section>
 
           <section className="card">
             <p className="text-base font-semibold mb-2" style={{ color: 'var(--color-text)' }}>
-              Пара слов о предстоящем дне
+              Что важно для тебя прямо сейчас?
             </p>
             <p className="text-xs mb-3" style={{ color: 'var(--color-text-tertiary)' }}>
-              Необязательно, но делает прогноз точнее
+              Одно-два предложения — и прогноз станет про тебя
             </p>
             <textarea
               data-testid="context-input"
               value={contextText}
               onChange={(e) => setContextText(e.target.value)}
-              placeholder="Не выспался, важный разговор, раздражает одна ситуация..."
+              onFocus={() => setContextFocused(true)}
+              onBlur={() => setContextFocused(false)}
+              placeholder="Завтра сложный разговор с коллегой, не выспался, жду результатов..."
               maxLength={300}
               rows={3}
-              className="w-full px-3 py-3 rounded-xl text-sm leading-relaxed resize-none"
+              className="w-full px-3 py-3 rounded-xl text-sm leading-relaxed resize-none transition-all duration-200"
               style={{
                 background: 'rgba(0,0,0,0.03)',
-                border: '1.5px solid var(--color-border)',
+                border: `1.5px solid ${contextFocused ? 'var(--color-accent)' : 'var(--color-border)'}`,
                 color: 'var(--color-text)',
+                outline: 'none',
               }}
             />
             <p
