@@ -57,7 +57,7 @@
   .phone {
     position: absolute;
     top: 590px; left: 50%; transform: translateX(-50%);
-    width: 540px; height: 1150px; z-index: 5;
+    width: 540px; height: 1100px; z-index: 5;
   }
   .shell {
     width: 100%; height: 100%;
@@ -275,121 +275,8 @@
         </div>
       </div>
 
-      <!-- App UI -->
-      <div class="ui">
-
-        <div class="page-title">Паттерны</div>
-
-        <!-- Tabs -->
-        <div class="tabs">
-          <div class="tab">Неделя</div>
-          <div class="tab">История</div>
-          <div class="tab on">Мой профиль</div>
-        </div>
-
-        <!-- Accuracy chart -->
-        <div>
-          <div class="slbl">Точность прогнозов</div>
-          <div class="chart-card">
-            <!-- SVG graph: rising curve, endpoint glows at 88% -->
-            <svg width="100%" height="72" viewBox="0 0 468 72" fill="none" overflow="visible">
-              <!-- gradient fill under curve -->
-              <defs>
-                <linearGradient id="gfill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="rgba(212,130,10,0.18)"/>
-                  <stop offset="100%" stop-color="rgba(212,130,10,0)"/>
-                </linearGradient>
-                <filter id="glow-dot">
-                  <feGaussianBlur stdDeviation="4" result="blur"/>
-                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                </filter>
-              </defs>
-              <!-- area fill -->
-              <path d="M10 60 C80 58 120 50 180 42 C240 34 300 22 400 12 C430 9 455 8 468 7 L468 72 L10 72 Z"
-                    fill="url(#gfill)"/>
-              <!-- line -->
-              <path d="M10 60 C80 58 120 50 180 42 C240 34 300 22 400 12 C430 9 455 8 468 7"
-                    stroke="#D4820A" stroke-width="2" stroke-linecap="round" fill="none"/>
-              <!-- outer pulse ring -->
-              <circle class="dot-ring" cx="461" cy="8" r="11" fill="rgba(255,170,40,0.30)" filter="url(#glow-dot)"/>
-              <!-- inner dot -->
-              <circle class="dot-main" cx="461" cy="8" r="5" fill="#D4820A" filter="url(#glow-dot)"/>
-            </svg>
-            <div class="chart-row">
-              <span>14 апреля</span>
-              <div class="chart-mid">
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                  <path d="M5 8V2M2 5l3-3 3 3" stroke="#D4820A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Сейчас 88%
-              </div>
-              <span>20 апреля</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Открытия -->
-        <div>
-          <div class="slbl">Открытия</div>
-          <div style="display:flex; flex-direction:column; gap:8px;">
-            <div class="discovery-card featured">
-              <div class="disc-icon di-orange">⚡</div>
-              <div class="disc-body">
-                <div class="disc-text">В такие дни чаще всего совпадает предупреждение про «тон» — это твой триггер.</div>
-                <div class="disc-tag">тон</div>
-              </div>
-            </div>
-            <div class="discovery-card plain">
-              <div class="disc-icon di-green">🔍</div>
-              <div class="disc-body">
-                <div class="disc-text">Точность прогнозов в рабочие дни выше среднего.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Мой язык -->
-        <div>
-          <div class="slbl">Мой язык</div>
-          <div class="lang-card">
-            <div class="lang-hint">Слова, которые ты используешь чаще других</div>
-            <div class="word-cloud">
-              <span class="word w-xl">усталость</span>
-              <span class="word w-md">разговор</span>
-              <span class="word w-lg">работа</span>
-              <span class="word w-sm">семья</span>
-              <span class="word w-md">встреча</span>
-              <span class="word w-sm">утро</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Nav -->
-      <div class="nav">
-        <div class="ni">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M3 10L12 3l9 7v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9z" stroke="rgba(0,0,0,0.28)" stroke-width="1.8" stroke-linejoin="round"/>
-            <path d="M9 21v-8h6v8" stroke="rgba(0,0,0,0.28)" stroke-width="1.8" stroke-linejoin="round"/>
-          </svg>
-          <span>Сегодня</span>
-        </div>
-        <div class="ni on">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <rect x="3"  y="12" width="4" height="9"  rx="1.2" stroke="#0E0B06" stroke-width="1.8"/>
-            <rect x="10" y="7"  width="4" height="14" rx="1.2" stroke="#0E0B06" stroke-width="1.8"/>
-            <rect x="17" y="3"  width="4" height="18" rx="1.2" stroke="#0E0B06" stroke-width="1.8"/>
-          </svg>
-          <span>Паттерны</span>
-        </div>
-        <div class="ni">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="2.8" stroke="rgba(0,0,0,0.28)" stroke-width="1.8"/>
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="rgba(0,0,0,0.28)" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-          <span>Настройки</span>
-        </div>
+      <div>
+        <img src="IMG_4123 (1).PNG" style="width: 100%">
       </div>
 
     </div>

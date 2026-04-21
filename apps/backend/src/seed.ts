@@ -247,7 +247,7 @@ async function seed() {
         strengthPoint: day.strengthPoint,
         trapWarning: day.trapWarning,
         confidence: day.confidence,
-        modelVersion: 'gpt-4.1-mini',
+        modelVersion: 'gpt-5.4-mini',
         generatedFrom: { mood: day.mood, focus: day.focus },
       },
     });

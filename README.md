@@ -137,7 +137,7 @@
 | State | Zustand (UI state) + TanStack Query (server state) |
 | Backend | Node.js, Express, Prisma ORM |
 | Database | SQLite (local dev) / PostgreSQL (production) |
-| AI | OpenAI API — gpt-4.1-mini, Responses API, structured outputs |
+| AI | OpenAI API — gpt-5.4-mini, Responses API, structured outputs |
 | Identity | Anonymous session via localStorage UUID (X-Device-ID header) |
 | Tests | Vitest (backend unit + integration) + Playwright (E2E, 72 теста) |
 

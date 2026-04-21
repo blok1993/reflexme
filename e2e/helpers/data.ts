@@ -55,7 +55,7 @@ export const PREDICTION = {
   strengthPoint: 'Лучше всего сработаешь в одиночных задачах без объяснений',
   trapWarning: 'Не принимай утреннюю усталость за итог всего дня',
   confidence: 'medium' as const,
-  modelVersion: 'gpt-4.1-mini',
+  modelVersion: 'gpt-5.4-mini',
   generatedFrom: null,
   createdAt: `${TODAY}T09:01:00.000Z`,
 };
