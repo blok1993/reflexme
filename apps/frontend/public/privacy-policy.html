@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Политика конфиденциальности — ReflexMe</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: #F5F4F0;
+      color: #1A1612;
+      line-height: 1.7;
+      padding: 0 16px 80px;
+    }
+
+    .wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      padding-top: 56px;
+    }
+
+    .logo {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: rgba(26,22,18,0.38);
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+
+    .date {
+      font-size: 14px;
+      color: rgba(26,22,18,0.44);
+      margin-bottom: 48px;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 40px;
+      margin-bottom: 10px;
+    }
+
+    p { margin-bottom: 14px; font-size: 16px; color: #2A2520; }
+
+    ul {
+      padding-left: 22px;
+      margin-bottom: 14px;
+    }
+    ul li {
+      font-size: 16px;
+      color: #2A2520;
+      margin-bottom: 6px;
+    }
+
+    a { color: #5A6CC8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(26,22,18,0.1);
+      margin: 40px 0;
+    }
+
+    .footer {
+      font-size: 13px;
+      color: rgba(26,22,18,0.4);
+      margin-top: 56px;
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="logo">ReflexMe</div>
+
+  <h1>Политика конфиденциальности</h1>
+  <div class="date">Последнее обновление: 23 апреля 2025 г.</div>
+
+  <p>
+    Настоящая Политика конфиденциальности описывает, какие данные собирает
+    приложение ReflexMe, как они используются и какие права есть у пользователя.
+    Используя приложение, вы соглашаетесь с условиями настоящей политики.
+  </p>
+
+  <h2>1. Кто мы</h2>
+  <p>
+    ReflexMe — приложение для ежедневной саморефлексии и персональных прогнозов.
+    Оператор: reflexme.ru. По вопросам конфиденциальности пишите на
+    <a href="mailto:hello@reflexme.ru">hello@reflexme.ru</a>.
+  </p>
+
+  <h2>2. Какие данные мы собираем</h2>
+  <p>ReflexMe собирает минимально необходимые данные для работы приложения:</p>
+  <ul>
+    <li><strong>Анонимный идентификатор устройства</strong> — случайный UUID, генерируется при первом запуске и хранится локально. Не привязан к личности пользователя.</li>
+    <li><strong>Данные чек-ина</strong> — настроение, выбранный фокус, короткий текстовый контекст (не обязательно).</li>
+    <li><strong>Оценки прогнозов</strong> — «Да», «Частично», «Мимо» по каждому прогнозу вечером.</li>
+    <li><strong>Предпочтения</strong> — имя (по желанию), стиль общения, дата рождения (по желанию).</li>
+  </ul>
+  <p>Мы <strong>не собираем</strong>: имя, email, телефон, геолокацию, контакты, фото или другие персональные данные, позволяющие идентифицировать пользователя.</p>
+
+  <h2>3. Как мы используем данные</h2>
+  <ul>
+    <li>Генерация персональных прогнозов дня с помощью ИИ.</li>
+    <li>Формирование еженедельных наблюдений и профиля пользователя для повышения точности прогнозов.</li>
+    <li>Отображение истории и паттернов внутри приложения.</li>
+  </ul>
+  <p>Данные <strong>не продаются</strong> третьим лицам и не используются для таргетированной рекламы.</p>
+
+  <h2>4. Передача данных третьим сторонам</h2>
+  <p>
+    Для генерации прогнозов используется API OpenAI (ChatGPT). Данные чек-ина передаются
+    в обезличенном виде в рамках запроса к модели. OpenAI не хранит данные запросов
+    для обучения моделей при использовании API. Подробнее:
+    <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">openai.com/policies/privacy-policy</a>.
+  </p>
+  <p>Иные передачи данных третьим сторонам не осуществляются.</p>
+
+  <h2>5. Хранение данных</h2>
+  <p>
+    Данные хранятся на защищённом сервере в облачной инфраструктуре Railway.
+    Идентификатор сессии хранится в браузере пользователя (localStorage).
+    Данные привязаны к устройству — смена браузера или устройства создаёт новую анонимную сессию.
+  </p>
+
+  <h2>6. Права пользователя</h2>
+  <p>Вы вправе:</p>
+  <ul>
+    <li>Запросить удаление всех данных, связанных с вашим анонимным идентификатором.</li>
+    <li>Удалить локальные данные, очистив хранилище браузера (localStorage).</li>
+  </ul>
+  <p>
+    Для удаления серверных данных напишите на
+    <a href="mailto:hello@reflexme.ru">hello@reflexme.ru</a>
+    с темой «Удаление данных», указав ваш анонимный ID (можно найти в настройках приложения).
+  </p>
+
+  <h2>7. Дети</h2>
+  <p>
+    Приложение не предназначено для лиц младше 16 лет. Мы не собираем данные детей намеренно.
+    Если вам стало известно о предоставлении данных ребёнком, свяжитесь с нами.
+  </p>
+
+  <h2>8. Изменения политики</h2>
+  <p>
+    Мы можем обновлять эту политику. При существенных изменениях дата в заголовке будет обновлена.
+    Продолжение использования приложения после изменений означает согласие с новой редакцией.
+  </p>
+
+  <h2>9. Контакты</h2>
+  <p>
+    По вопросам конфиденциальности: <a href="mailto:hello@reflexme.ru">hello@reflexme.ru</a><br/>
+    Сайт: <a href="https://www.reflexme.ru" target="_blank" rel="noopener">www.reflexme.ru</a>
+  </p>
+
+  <hr class="divider" />
+
+  <div class="footer">
+    © 2025 ReflexMe. Все права защищены.
+  </div>
+
+</div>
+</body>
+</html>
